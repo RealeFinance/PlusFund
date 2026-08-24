@@ -22,6 +22,7 @@
     "deploy:usd": "npx hardhat run ./deploy/test/_deploy_USD.js --network hardhat",
     "deploy:test": "npx hardhat run --network testnet ./deploy/test/_deploy_test.js",
     "deploy:test:up": "npx hardhat run --network testnet ./deploy/test/_deploy_upgrade.js",
+    "scan:redemptions": "node deploy/scan-token-redemptions.js",
     "verify": "npx hardhat verify --network testnet ***",
     "postinstall": "node postinstall.js"
   }

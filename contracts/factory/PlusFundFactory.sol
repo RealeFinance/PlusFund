@@ -46,6 +46,7 @@ contract PlusFundFactory is AccessControl {
         0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     uint256 public constant MAX_BATCH_SIZE = 5;
+    uint256 public constant MIN_TIMELOCK_DELAY = 48 hours;
 
     address public implementation;
 
@@ -72,6 +73,7 @@ contract PlusFundFactory is AccessControl {
 
     mapping(bytes32 => address) public tokenByProductId;
     mapping(address => address) public timelockByToken;
+    mapping(address => bool) public approvedPoolAdmins;
     address[] private _tokens;
 
     event ImplementationUpdated(address indexed previousImplementation, address indexed newImplementation);
@@ -82,6 +84,7 @@ contract PlusFundFactory is AccessControl {
         address implementation,
         bytes32 salt
     );
+    event PoolAdminApprovalUpdated(address indexed poolAdmin, bool approved);
 
     error ZeroAddress();
     error InvalidImplementation();
@@ -89,6 +92,7 @@ contract PlusFundFactory is AccessControl {
     error InvalidProductId();
     error InvalidConfiguration();
     error InvalidGovernanceAddress(address account);
+    error InvalidPoolAdmin(address account);
     error InvalidBatchSize();
 
     constructor(
@@ -110,6 +114,18 @@ contract PlusFundFactory is AccessControl {
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         _setImplementation(newImplementation);
+    }
+
+    function setPoolAdminApproval(address poolAdmin, bool approved)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (poolAdmin == address(0)) revert ZeroAddress();
+        if (approved) {
+            _requireContract(poolAdmin);
+        }
+        approvedPoolAdmins[poolAdmin] = approved;
+        emit PoolAdminApprovalUpdated(poolAdmin, approved);
     }
 
     function deployToken(TokenConfig calldata config, bytes32 salt)
@@ -175,7 +191,7 @@ contract PlusFundFactory is AccessControl {
             config.serviceFeeRecipient == address(0) ||
             config.proposers.length == 0 ||
             config.executors.length == 0 ||
-            config.timelockDelay == 0
+            config.timelockDelay < MIN_TIMELOCK_DELAY
         ) {
             revert InvalidConfiguration();
         }
@@ -186,6 +202,9 @@ contract PlusFundFactory is AccessControl {
         }
 
         _requireContract(config.stokenAdmin);
+        if (config.poolAdmin != address(0)) {
+            _requireApprovedPoolAdmin(config.poolAdmin);
+        }
         for (uint256 i = 0; i < config.cancellers.length; i++) {
             if (config.cancellers[i] == address(0)) revert ZeroAddress();
             _requireContract(config.cancellers[i]);
@@ -292,6 +311,12 @@ contract PlusFundFactory is AccessControl {
     function _requireContract(address account) internal view {
         if (account.code.length == 0) {
             revert InvalidGovernanceAddress(account);
+        }
+    }
+
+    function _requireApprovedPoolAdmin(address account) internal view {
+        if (!approvedPoolAdmins[account] || account.code.length == 0) {
+            revert InvalidPoolAdmin(account);
         }
     }
 

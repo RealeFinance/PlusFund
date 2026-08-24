@@ -22,21 +22,30 @@ describe("PlusFundFactory", function () {
     );
     await factory.waitForDeployment();
 
+    const poolAdmin = await GovernanceAddressMock.deploy();
+    await poolAdmin.waitForDeployment();
+    const approvalData = factory.interface.encodeFunctionData(
+      "setPoolAdminApproval",
+      [await poolAdmin.getAddress(), true],
+    );
+    await governance.execute(await factory.getAddress(), approvalData);
+
     return {
       signers,
       factory: factory.connect(signers[1]),
       rawFactory: factory,
       governance,
+      poolAdmin,
     };
   }
 
-  function buildConfig(signers, governanceAddress) {
+  function buildConfig(signers, governanceAddress, poolAdminAddress) {
     return {
       productId: ethers.id("NGIPlus"),
       name: "NGIPlus",
       symbol: "NGI+",
       stokenAdmin: governanceAddress,
-      poolAdmin: signers[2].address,
+      poolAdmin: poolAdminAddress,
       blacklistAdmin: signers[3].address,
       ccipAdmin: signers[4].address,
       assetRecipient: signers[5].address,
@@ -54,8 +63,12 @@ describe("PlusFundFactory", function () {
   }
 
   it("deploys an isolated proxy and per-token timelock", async function () {
-    const { signers, factory, rawFactory, governance } = await deployFixture();
-    const config = buildConfig(signers, await governance.getAddress());
+    const { signers, factory, rawFactory, governance, poolAdmin } = await deployFixture();
+    const config = buildConfig(
+      signers,
+      await governance.getAddress(),
+      await poolAdmin.getAddress(),
+    );
     const salt = ethers.id("NGIPlus-1");
 
     const tx = await factory.deployToken(config, salt);
@@ -138,8 +151,12 @@ describe("PlusFundFactory", function () {
   });
 
   it("rejects a duplicate product id", async function () {
-    const { signers, factory, governance } = await deployFixture();
-    const config = buildConfig(signers, await governance.getAddress());
+    const { signers, factory, governance, poolAdmin } = await deployFixture();
+    const config = buildConfig(
+      signers,
+      await governance.getAddress(),
+      await poolAdmin.getAddress(),
+    );
 
     await factory.deployToken(config, ethers.id("NGIPlus-1"));
     await expect(
@@ -147,15 +164,19 @@ describe("PlusFundFactory", function () {
     ).to.be.revertedWithCustomError(factory, "ProductAlreadyExists");
   });
 
-  it("rejects a timelock with no executor or zero-delay governance", async function () {
-    const { signers, factory, governance } = await deployFixture();
-    const baseConfig = buildConfig(signers, await governance.getAddress());
+  it("rejects a timelock below the 48-hour minimum or with no executor", async function () {
+    const { signers, factory, governance, poolAdmin } = await deployFixture();
+    const baseConfig = buildConfig(
+      signers,
+      await governance.getAddress(),
+      await poolAdmin.getAddress(),
+    );
 
     await expect(
       factory.deployToken(
-        { ...baseConfig, timelockDelay: 0n },
-        ethers.id("zero-delay"),
-      ),
+        { ...baseConfig, timelockDelay: 48n * 60n * 60n - 1n },
+        ethers.id("short-delay"),
+    ),
     ).to.be.revertedWithCustomError(factory, "InvalidConfiguration");
 
     await expect(
@@ -167,9 +188,13 @@ describe("PlusFundFactory", function () {
   });
 
   it("rejects a zero-address proposer", async function () {
-    const { signers, factory, governance } = await deployFixture();
+    const { signers, factory, governance, poolAdmin } = await deployFixture();
     const config = {
-      ...buildConfig(signers, await governance.getAddress()),
+      ...buildConfig(
+        signers,
+        await governance.getAddress(),
+        await poolAdmin.getAddress(),
+      ),
       proposers: [ethers.ZeroAddress],
     };
 
@@ -179,7 +204,7 @@ describe("PlusFundFactory", function () {
   });
 
   it("rejects a non-UUPS implementation", async function () {
-    const { signers, factory, rawFactory, governance } = await deployFixture();
+    const { signers, factory, rawFactory, governance, poolAdmin } = await deployFixture();
     const TimelockController = await ethers.getContractFactory(
       "TimelockController",
     );
@@ -200,14 +225,53 @@ describe("PlusFundFactory", function () {
   });
 
   it("rejects EOA governance addresses without requiring Safe specifically", async function () {
-    const { signers, factory, governance } = await deployFixture();
+    const { signers, factory, governance, poolAdmin } = await deployFixture();
     const config = {
-      ...buildConfig(signers, await governance.getAddress()),
+      ...buildConfig(
+        signers,
+        await governance.getAddress(),
+        await poolAdmin.getAddress(),
+      ),
       stokenAdmin: signers[1].address,
     };
 
     await expect(
       factory.deployToken(config, ethers.id("eoa-governance")),
     ).to.be.revertedWithCustomError(factory, "InvalidGovernanceAddress");
+  });
+
+  it("rejects an EOA pool admin", async function () {
+    const { signers, factory, governance, poolAdmin } = await deployFixture();
+    const config = {
+      ...buildConfig(
+        signers,
+        await governance.getAddress(),
+        await poolAdmin.getAddress(),
+      ),
+      poolAdmin: signers[2].address,
+    };
+
+    await expect(
+      factory.deployToken(config, ethers.id("eoa-pool-admin")),
+    ).to.be.revertedWithCustomError(factory, "InvalidPoolAdmin");
+  });
+
+  it("rejects an unapproved pool admin contract", async function () {
+    const { signers, factory, governance, poolAdmin } = await deployFixture();
+    const UnapprovedPool = await ethers.getContractFactory("GovernanceAddressMock");
+    const unapprovedPool = await UnapprovedPool.deploy();
+    await unapprovedPool.waitForDeployment();
+    const config = {
+      ...buildConfig(
+        signers,
+        await governance.getAddress(),
+        await poolAdmin.getAddress(),
+      ),
+      poolAdmin: await unapprovedPool.getAddress(),
+    };
+
+    await expect(
+      factory.deployToken(config, ethers.id("unapproved-pool-admin")),
+    ).to.be.revertedWithCustomError(factory, "InvalidPoolAdmin");
   });
 });
