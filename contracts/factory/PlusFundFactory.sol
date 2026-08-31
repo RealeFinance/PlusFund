@@ -103,6 +103,9 @@ contract PlusFundFactory is AccessControl {
         if (factoryAdmin_ == address(0) || operator_ == address(0)) {
             revert ZeroAddress();
         }
+        if (factoryAdmin_ == operator_) {
+            revert InvalidConfiguration();
+        }
         _requireContract(factoryAdmin_);
         _setImplementation(implementation_);
         _grantRole(DEFAULT_ADMIN_ROLE, factoryAdmin_);

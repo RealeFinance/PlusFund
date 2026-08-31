@@ -240,6 +240,28 @@ describe("PlusFundFactory", function () {
     ).to.be.revertedWithCustomError(factory, "InvalidGovernanceAddress");
   });
 
+  it("rejects using the same address for factory admin and operator", async function () {
+    const signers = await ethers.getSigners();
+    const Implementation = await ethers.getContractFactory("PlusFund");
+    const implementation = await Implementation.deploy();
+    await implementation.waitForDeployment();
+
+    const GovernanceAddressMock = await ethers.getContractFactory(
+      "GovernanceAddressMock",
+    );
+    const governance = await GovernanceAddressMock.deploy();
+    await governance.waitForDeployment();
+
+    const Factory = await ethers.getContractFactory("PlusFundFactory");
+    await expect(
+      Factory.deploy(
+        await implementation.getAddress(),
+        await governance.getAddress(),
+        await governance.getAddress(),
+      ),
+    ).to.be.revertedWithCustomError(Factory, "InvalidConfiguration");
+  });
+
   it("rejects an EOA pool admin", async function () {
     const { signers, factory, governance, poolAdmin } = await deployFixture();
     const config = {

@@ -20,8 +20,23 @@ const factory = await Factory.deploy(
 
 - `factoryAdminSafe`：管理 implementation、授予/撤销部署权限。
 - `operatorAddress`：只能调用 `deployToken()` 和 `batchDeploy()`。
-- 两者不应使用同一个地址。
+- 两者必须使用不同地址，禁止将同一个 Safe 同时配置为治理管理员和部署操作员。
 - `factoryAdminSafe` 必须是已部署的合约地址，建议使用 Safe。
+
+仓库提供了可执行脚本：
+
+```powershell
+npm run deploy:factory -- --network <network>
+```
+
+脚本顶部的 `DEPLOYMENT_CONFIG` 是运行时参数配置区。直接修改
+`deploy/deploy-plusfund-factory.js` 中的地址、TokenConfig 和 `deployToken` 开关，脚本会将地址写入
+`deployments/plusfund-factory-<network>.json`。
+
+首次部署工厂时填写 `factoryAdminSafe`、`operatorAddress`，并将 `factoryAddress` 留空；
+不填写 `implementationAddress` 时，脚本自动部署 PlusFund implementation。
+
+首次部署 Token 时，填写 `factoryAddress`，将 `deployToken` 改为 `true`，并完善 `token` 配置。如果 `poolAdmin` 尚未加入白名单，脚本不会继续部署，而是输出由 `factoryAdminSafe` 执行的 `setPoolAdminApproval(poolAddress, true)` calldata。Safe 执行成功后重新运行脚本。
 
 ## 1. 发布前准备
 
