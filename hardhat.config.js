@@ -88,6 +88,20 @@ module.exports = {
       gasPrice: "auto",
       timeout: 2000000,
     },
+    arcTestnet: {
+      url: "https://rpc.testnet.arc.io",
+      accounts: [process.env.PRIVATE_KEY_2],
+      chainId: 5042002,
+      gasPrice: "auto",
+      timeout: 2000000,
+    },
+    arc: {
+      url: "https://rpc.testnet.arc.network",
+      accounts: [process.env.PRIVATE_KEY_2],
+      chainId: 5042,
+      gasPrice: "auto",
+      timeout: 2000000,
+    },
     sepolia: {
       url: "https://eth-sepolia.g.alchemy.com/v2/N3C7u3FWjnZvKyop_yRKc",
       accounts: [process.env.PRIVATE_KEY_2],

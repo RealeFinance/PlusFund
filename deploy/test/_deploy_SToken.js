@@ -29,9 +29,9 @@ async function main() {
     timelock: {
       enabled: true,
       minDelay: timelockDelay, // 2 天（秒）
-      proposers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可发起提案的地址
+      proposers: ["0x9732bD08452aFB792884308674248d7bD2c3364f"], // 可发起提案的地址
       executors: ["0x0000000000000000000000000000000000000000"], // 放空则延迟到后任何人可执行
-      cancellers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可取消待执行提案的地址
+      cancellers: ["0x9732bD08452aFB792884308674248d7bD2c3364f"], // 可取消待执行提案的地址
     },
     // ===== 角色分配 =====
     STOKEN_ADMIN: ["0x9Ac1862C0D5C1bf821cc6926EB2044D2b4D10b17"], // 日常运维地址（无延迟）
