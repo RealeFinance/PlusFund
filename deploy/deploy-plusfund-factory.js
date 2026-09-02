@@ -9,8 +9,8 @@ const MIN_TIMELOCK_DELAY = 48n * 60n * 60n;
 // ======== 部署参数：请在运行脚本前直接修改这里 ========
 const DEPLOYMENT_CONFIG = {
   // 首次部署工厂时填写；连接已有工厂时可留空。
-  factoryAdminSafe: "",
-  operatorAddress: "",
+  factoryAdminSafe: "0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb",
+  operatorAddress: "0x9732bD08452aFB792884308674248d7bD2c3364f",
 
   // 留空则自动部署新的 PlusFund implementation。
   implementationAddress: "",
