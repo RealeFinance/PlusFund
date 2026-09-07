@@ -131,10 +131,10 @@ module.exports = {
       timeout: 2000000,
     },
     NeoXMainnet: {
-      url: "https://mainnet-1.rpc.banelabs.org",
+      url: "https://mainnet-2.rpc.banelabs.org",
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 47763,
-      gasPrice: "auto",
+      gasPrice: 50_000_000_000, // 50 gwei
       timeout: 2000000,
     },
     PharosAtlanticTestnet: {
