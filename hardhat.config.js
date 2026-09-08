@@ -134,7 +134,12 @@ module.exports = {
       url: "https://mainnet-2.rpc.banelabs.org",
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 47763,
-      gasPrice: 50_000_000_000, // 50 gwei
+      timeout: 2000000,
+    },
+    NeoXTestnetT4: {
+      url: "https://testnet.rpc.banelabs.org",
+      accounts: [process.env.PRIVATE_KEY_2],
+      chainId: 12227332,
       timeout: 2000000,
     },
     PharosAtlanticTestnet: {
