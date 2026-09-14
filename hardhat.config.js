@@ -96,7 +96,7 @@ module.exports = {
       timeout: 2000000,
     },
     arc: {
-      url: "https://rpc.testnet.arc.network",
+      url: process.env.ARC_RPC_URL || "https://rpc.testnet.arc.network",
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 5042,
       gasPrice: "auto",

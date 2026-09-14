@@ -19,9 +19,9 @@ const PharosTokenAddresses = [
 async function main() {
   // ===== 你要改的参数 =====
   const contractName = "PlusFund";
-  const PRODUCT_NAME = "CashPlus";
-  const name = "CashPlus";
-  const symbol = "CASH+";
+  const PRODUCT_NAME = "PGNGIPlus";
+  const name = "PGNGIPlus";
+  const symbol = "PGNGI+";
   const timelockDelay = 172800; // 2 天（秒）
   const data = {
     // ===== Timelock 配置 =====
@@ -29,19 +29,19 @@ async function main() {
     timelock: {
       enabled: true,
       minDelay: timelockDelay, // 2 天（秒）
-      proposers: ["0x81Ec47c61d8864c090f151A4804021dd4a3D4Db1"], // 可发起提案的地址
+      proposers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可发起提案的地址
       executors: ["0x0000000000000000000000000000000000000000"], // 放空则延迟到后任何人可执行
-      cancellers: ["0x81Ec47c61d8864c090f151A4804021dd4a3D4Db1"], // 可取消待执行提案的地址
+      cancellers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可取消待执行提案的地址
     },
     // ===== 角色分配 =====
-    STOKEN_ADMIN: ["0xE2c830DcBb57D1230B758bDbC0e76440cDcf044d"], // 日常运维地址（无延迟）
+    STOKEN_ADMIN: ["0x9Ac1862C0D5C1bf821cc6926EB2044D2b4D10b17"], // 日常运维地址（无延迟）
     // ===== 资产地址 =====
-    assetRecipient: "0xeEe235E30bE67b35627FFD0ddBb0b914636F3f88",
-    assetSender: "0xeEe235E30bE67b35627FFD0ddBb0b914636F3f88",
-    serviceFeeRecipient: "0xeEe235E30bE67b35627FFD0ddBb0b914636F3f88",
+    assetRecipient: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
+    assetSender: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
+    serviceFeeRecipient: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
     // ===== 支持代币 =====
     // supportedTokenAddresses: [...ETHTokenAddresses],
-    supportedTokenAddresses: ["0x2BDCDA0d8a5D9015908E52b53C282902147dB63e"],
+    supportedTokenAddresses: ["0x3600000000000000000000000000000000000000"],
   };
   // =======================
 
