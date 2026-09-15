@@ -102,6 +102,13 @@ module.exports = {
       gasPrice: "auto",
       timeout: 2000000,
     },
+    "arc-mainnet": {
+      url: process.env.ARC_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY_2],
+      chainId: 5042,
+      gasPrice: "auto",
+      timeout: 2000000,
+    },
     sepolia: {
       url: "https://eth-sepolia.g.alchemy.com/v2/N3C7u3FWjnZvKyop_yRKc",
       accounts: [process.env.PRIVATE_KEY_2],
@@ -178,6 +185,7 @@ module.exports = {
       PharosAtlanticTestnet: "empty",
       // bscTestnet: "empty",
       mainnet: "empty",
+      "arc-mainnet": "empty",
     },
     // 自定义网络配置
     customChains: [
@@ -248,6 +256,14 @@ module.exports = {
           apiURL:
             "https://api.socialscan.io/pharos-atlantic-testnet/v1/explorer/command_api/contract",
           browserURL: "https://atlantic.pharosscan.xyz/",
+        },
+      },
+      {
+        network: "arc-mainnet",
+        chainId: 5042,
+        urls: {
+          apiURL: "https://explorer.arc.io/api",
+          browserURL: "https://explorer.arc.io",
         },
       },
     ],
