@@ -9,11 +9,11 @@ const MIN_TIMELOCK_DELAY = 48n * 60n * 60n;
 // ======== 部署参数：请在运行脚本前直接修改这里 ========
 const DEPLOYMENT_CONFIG = {
   // 首次部署工厂时填写；连接已有工厂时可留空。
-  factoryAdminSafe: "0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb",
-  operatorAddress: "0x9732bD08452aFB792884308674248d7bD2c3364f",
+  factoryAdminSafe: "0xbcEBecfFedF45796defA71bf440eBa1865F460dc",
+  operatorAddress: "0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb",
 
   // 留空则自动部署新的 PlusFund implementation。
-  implementationAddress: "",
+  implementationAddress: "0x4232DB2f77D0a3fE872260a540EbC2B9e8377E4D",
 
   // 首次部署留空；继续部署 Token 时填写已部署的工厂地址。
   factoryAddress: "",
@@ -217,8 +217,10 @@ async function deployFactory(deployer, implementationAddress) {
     DEPLOYMENT_CONFIG.operatorAddress || deployer.address,
     "OPERATOR_ADDRESS",
   );
-  if (factoryAdminSafe === operatorAddress) {
-    throw new Error("FACTORY_ADMIN_SAFE and OPERATOR_ADDRESS must be different");
+  if (factoryAdminSafe.toLowerCase() === operatorAddress.toLowerCase()) {
+    throw new Error(
+      "FACTORY_ADMIN_SAFE and OPERATOR_ADDRESS must be different; the factory contract rejects identical addresses",
+    );
   }
   if ((await ethers.provider.getCode(factoryAdminSafe)) === "0x") {
     throw new Error("FACTORY_ADMIN_SAFE must be a deployed contract");
@@ -350,3 +352,6 @@ main().catch((error) => {
   console.error(error.stack || error.message || error);
   process.exitCode = 1;
 });
+
+
+// npx hardhat run deploy/deploy-plusfund-factory.js --network bscTestnet

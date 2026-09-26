@@ -4,10 +4,10 @@
   "deployer": "0x9732bD08452aFB792884308674248d7bD2c3364f",
   "implementation": "0x4232DB2f77D0a3fE872260a540EbC2B9e8377E4D",
   "factory": {
-    "address": "0x80a0A051B34F409fC71Aeb69461482Bc3bB97e83",
+    "address": "0x6d89Eb44f681B85942eaf7dDa7489942EB586155",
     "deployed": true,
-    "factoryAdminSafe": "0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb",
-    "operatorAddress": "0x9732bD08452aFB792884308674248d7bD2c3364f",
-    "deploymentTransaction": "0xf79bc0d9d9bfd571ea3e27507422212e45d7dd08a660ef44c3ac8bce57905745"
+    "factoryAdminSafe": "0xbcEBecfFedF45796defA71bf440eBa1865F460dc",
+    "operatorAddress": "0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb",
+    "deploymentTransaction": "0x2031949f7656cc479b69573ab3c665c4b4761206dad0bce8134f33c7ffae368f"
   }
 }
