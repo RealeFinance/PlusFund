@@ -36,37 +36,42 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 
 
 # ==============================================================================cash+
+# PlusFund 维护路线标注：
+# [旧结构 / stoken1.0] 使用 _tokenList + _tokenMap；不直接升级到 Wallet 主线，旧线继续维护。
+# [新结构 / main] 使用 Wallet 映射；同属 main 升级家族，可升级跟随当前主线（仓库 main 为 v2.1.2）。逐代理执行前仍须做 storage validation，并检查 timelock/权限及待处理链上申购赎回。
+# [待核对] 尚未确认代理当前 implementation，暂不推断路线。
+# 测试网仅标注技术路线，不计入正式线上产品统计；重复地址按不同链分别判断。
 ## hashkey testnet cash+
-### HASHKEY_TESTNET_CASH_PROXY_ADDRESS=0x40fc7a4Dfcade4021946f028f6fCf43666110847
+### HASHKEY_TESTNET_CASH_PROXY_ADDRESS=0x40fc7a4Dfcade4021946f028f6fCf43666110847  # [旧结构 / stoken1.0；测试网，不计正式统计]
 ### HASHKEY_TESTNET_USDC_PROXY_ADDRESS=0x703A0B94A49F765107e3e4abEB4FC3E5bac7248f
 
 
 ## BNBT (BSC Testnet) cash+
 ## https://testnet.bscscan.com/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980
-### BNBT_CASH_PROXY_ADDRESS=0x4013361546efe989Efd4a1242aDD5Ea88915e980
+### BNBT_CASH_PROXY_ADDRESS=0x4013361546efe989Efd4a1242aDD5Ea88915e980  # [旧结构 / stoken1.0；测试网，不计正式统计]
 ### BNBT_CASH_TIMELOCK_ADDRESS=0xAD4fb34AA2d4AF3B55b15EFB807222B565361D1b
 ### BNBT_MOCK_USDT_ADDRESS=0x1afB66E33b75B146D91A68dbb7E64eeb21834b6a
 ### BNBT_CASH_STOKEN_ADMIN_SAFE=0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb
 
 ## BSC (Binance Smart Chain) cash+
 ## https://bscscan.com/address/0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc
-### BSC_CASH_PROXY_ADDRESS=0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc
+### BSC_CASH_PROXY_ADDRESS=0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc  # [旧结构 / stoken1.0]
 ### BSC_CASH_TIMELOCK_ADDRESS=0x93323EE2F4c3174E8A08ca39015C160AD308235A
-### BSC_CASH_PROXY_TEST_ADDRESS=0x048A8AFA8cF69EA53B72298d50033d1E2560b809
+### BSC_CASH_PROXY_TEST_ADDRESS=0x048A8AFA8cF69EA53B72298d50033d1E2560b809  # [用途待核对：地址簿另标为 TESTNET_BlockList，暂不归入 PlusFund 维护路线]
 
 ## ETH (Ethereum) cash+
 ## https://etherscan.io/address/0x498D9329555471bF6073A5f2D047F746d522A373
-### ETH_CASH_PROXY_ADDRESS=0x498D9329555471bF6073A5f2D047F746d522A373
+### ETH_CASH_PROXY_ADDRESS=0x498D9329555471bF6073A5f2D047F746d522A373  # [旧结构 / stoken1.0]
     
 ## Sepolia ETH (Ethereum) cash+ 
 ## https://sepolia.etherscan.io/address/0x734bb43B503Ea50EBE58EB371e34263551cc3d28
-### SEPOLIA_ETH_CASH_PROXY_ADDRESS=0x734bb43B503Ea50EBE58EB371e34263551cc3d28
+### SEPOLIA_ETH_CASH_PROXY_ADDRESS=0x734bb43B503Ea50EBE58EB371e34263551cc3d28  # [旧结构 / stoken1.0；测试网，不计正式统计]
 
 ## Avalanche Fuji Testnet
-### AVALANCHE_FUJI_TESTNET_CASH_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c
+### AVALANCHE_FUJI_TESTNET_CASH_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c  # [旧结构 / stoken1.0；测试网，不计正式统计]
 
 ## Pharos Private Mainnet  
-### PHAROS_PRIVATE_MAINNET_CASH_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c
+### PHAROS_PRIVATE_MAINNET_CASH_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c  # [旧结构 / stoken1.0]
 
 # ==============================================================================cash+
 
@@ -74,71 +79,71 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 # ==============================================================================cash+ 2.0
 ## BNBT (BSC Testnet) cash+ 2.0
 ## https://testnet.bscscan.com/address/0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2
-### BNBT_CASH2_PROXY_ADDRESS=0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2
+### BNBT_CASH2_PROXY_ADDRESS=0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2  # [新结构 / main；测试网，不计正式统计]
 
 ## Sepolia ETH (Ethereum) cash+ 2.0 
 ## https://sepolia.etherscan.io/address/0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138
-### SEPOLIA_ETH_CASH2_PROXY_ADDRESS=0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138
+### SEPOLIA_ETH_CASH2_PROXY_ADDRESS=0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138  # [新结构 / main；测试网，不计正式统计]
 
 ## Pharos cash+ 2.0 
 ## https://pharos.socialscan.io/address/0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B
-### PHAROS_MAINNET_CASH2_PROXY_ADDRESS=0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B
+### PHAROS_MAINNET_CASH2_PROXY_ADDRESS=0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B  # [新结构 / main]
 
 ## atlantic.pharos CASH+ 2.0
 ## https://atlantic.pharos.io/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980
-### ATLANTIC_PHAROS_CASH2_PROXY_ADDRESS=0x4013361546efe989Efd4a1242aDD5Ea88915e980
+### ATLANTIC_PHAROS_CASH2_PROXY_ADDRESS=0x4013361546efe989Efd4a1242aDD5Ea88915e980  # [新结构 / main；测试网，不计正式统计]
 
 # ==============================================================================cash+ 2.0
 
 
 # ==============================================================================bond+
 ## hashkey mainnet bond+
-### HASHKEY_MAINNET_BOND_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c
+### HASHKEY_MAINNET_BOND_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c  # [旧结构 / stoken1.0]
 
 ## Avalanche mainnet bond+
-### AVALANCHE_MAINNET_BOND_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c
+### AVALANCHE_MAINNET_BOND_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c  # [旧结构 / stoken1.0]
 
 ## BSC (Binance Smart Chain) bond+
-### BSC_BOND_PROXY_ADDRESS=0xef663399110a76B3668e97fe697d721DCBb0c316
+### BSC_BOND_PROXY_ADDRESS=0xef663399110a76B3668e97fe697d721DCBb0c316  # [旧结构 / stoken1.0]
 
 ## Pharos Private Mainnet  
-### PHAROS_PRIVATE_MAINNET_BOND_PROXY_ADDRESS=0xCd01A9197c71d844A2AFCEd2D2fD7102FBB3Fa83
+### PHAROS_PRIVATE_MAINNET_BOND_PROXY_ADDRESS=0xCd01A9197c71d844A2AFCEd2D2fD7102FBB3Fa83  # [旧结构 / stoken1.0]
 # ==============================================================================bond+
 
 # ==============================================================================bond+ 2.0
 ## Pharos bond+ 2.0
 ## https://pharos.socialscan.io/address/0x286D9F099587f567EcE2b70eBB64B94ACD672d76
-### PHAROS_MAINNET_BOND2_PROXY_ADDRESS=0x286D9F099587f567EcE2b70eBB64B94ACD672d76
+### PHAROS_MAINNET_BOND2_PROXY_ADDRESS=0x286D9F099587f567EcE2b70eBB64B94ACD672d76  # [新结构 / main]
 
 ## plume bond+ 2.0
 ## https://explorer.plume.org/address/0x0D90a6eE85d5668734bb3A515147f53EBDfE866c
-### PLUME_MAINNET_BOND2_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c
+### PLUME_MAINNET_BOND2_PROXY_ADDRESS=0x0D90a6eE85d5668734bb3A515147f53EBDfE866c  # [新结构 / main]
 
 ## eth bond+ 2.0
 ## https://etherscan.io/address/0x28d77ea7c61cd9055983ef8b0806778d8bb12c88
-### ETH_BOND2_PROXY_ADDRESS=0x28d77ea7c61cd9055983ef8b0806778d8bb12c88
+### ETH_BOND2_PROXY_ADDRESS=0x28d77ea7c61cd9055983ef8b0806778d8bb12c88  # [新结构 / main]
 
 # ==============================================================================bond+ 2.0
 
 # ==============================================================================AMCASH
 ## BSC (Binance Smart Chain) AMCASH
 ## https://bscscan.com/address/0x0ba0443A7a2D4Bfeb44ec5C1234106CBc2557A91
-### BSC_AMCASH_PROXY_ADDRESS=0x0ba0443A7a2D4Bfeb44ec5C1234106CBc2557A91
+### BSC_AMCASH_PROXY_ADDRESS=0x0ba0443A7a2D4Bfeb44ec5C1234106CBc2557A91  # [旧结构 / stoken1.0]
 
 ## ETH (Ethereum) AMCASH
 ## https://etherscan.io/address/0x212624EE086bF0A8393F3BE84F4e21f54372F8AF
-### ETH_AMCASH_PROXY_ADDRESS=0x212624EE086bF0A8393F3BE84F4e21f54372F8AF
+### ETH_AMCASH_PROXY_ADDRESS=0x212624EE086bF0A8393F3BE84F4e21f54372F8AF  # [旧结构 / stoken1.0]
 # ==============================================================================AMCASH
 
 
 # ==============================================================================AMCASH+
 ## BSC (Binance Smart Chain) AMCASH+
 ## https://bscscan.com/address/0x1ec3AA07e3898f1e6d4F23b5dce1bdbecb5c1Fe1
-### BSC_AMCASH+_PROXY_ADDRESS=0x1ec3AA07e3898f1e6d4F23b5dce1bdbecb5c1Fe1
+### BSC_AMCASH+_PROXY_ADDRESS=0x1ec3AA07e3898f1e6d4F23b5dce1bdbecb5c1Fe1  # [旧结构 / stoken1.0]
 
 ## ETH (Ethereum) AMCASH+
 ## https://etherscan.io/address/0x78e80dA0616887b46A31F39310C2a8B0Fbd6A42d
-### ETH_AMCASH+_PROXY_ADDRESS=0x78e80dA0616887b46A31F39310C2a8B0Fbd6A42d
+### ETH_AMCASH+_PROXY_ADDRESS=0x78e80dA0616887b46A31F39310C2a8B0Fbd6A42d  # [旧结构 / stoken1.0]
 
 # ==============================================================================AMCASH+
 
@@ -146,55 +151,55 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 # ==============================================================================YIELD+ 2.0
 ## Pharos YIELD+ 2.0
 ## https://pharos.socialscan.io/address/0x87a1A531090bc58b34398E3cBa4C9b00c6B9231E
-### PHAROS_MAINNET_YIELD2_PROXY_ADDRESS=0x87a1A531090bc58b34398E3cBa4C9b00c6B9231E
+### PHAROS_MAINNET_YIELD2_PROXY_ADDRESS=0x87a1A531090bc58b34398E3cBa4C9b00c6B9231E  # [新结构 / main]
 
 ## plume YIELD+ 2.0
 ## https://explorer.plume.org/address/0xD9ffec462793e6627F223671E9C9b217C8103940
-### PLUME_MAINNET_YIELD2_PROXY_ADDRESS=0xD9ffec462793e6627F223671E9C9b217C8103940
+### PLUME_MAINNET_YIELD2_PROXY_ADDRESS=0xD9ffec462793e6627F223671E9C9b217C8103940  # [新结构 / main]
 
 ## ETH YIELD+ 2.0
 ## https://etherscan.io/address/0x37d03D8caBfB617e455D0cAA0Cf1cdc5b8F3BDEe
-### ETH_YIELD2_PROXY_ADDRESS=0x37d03D8caBfB617e455D0cAA0Cf1cdc5b8F3BDEe
+### ETH_YIELD2_PROXY_ADDRESS=0x37d03D8caBfB617e455D0cAA0Cf1cdc5b8F3BDEe  # [待核对：需读取该代理当前 implementation 的存储布局]
 
 ## BSC YIELD+ 2.0
 ## https://bscscan.com/address/0xCCa4656F736490cf2155589aEcd8382765a3e691
-### BSC_YIELD2_PROXY_ADDRESS=0xCCa4656F736490cf2155589aEcd8382765a3e691
+### BSC_YIELD2_PROXY_ADDRESS=0xCCa4656F736490cf2155589aEcd8382765a3e691  # [新结构 / main]
 
 # ==============================================================================YIELD+ 2.0
 
 # ==============================================================================NGI+ 2.0
 ## Pharos NGI+ 2.0
 ## https://pharos.socialscan.io/address/0x85f51213A6c3F2566aF519D296BB75AD4EC6d234
-### PHAROS_MAINNET_NGI2_PROXY_ADDRESS=0x85f51213A6c3F2566aF519D296BB75AD4EC6d234
+### PHAROS_MAINNET_NGI2_PROXY_ADDRESS=0x85f51213A6c3F2566aF519D296BB75AD4EC6d234  # [新结构 / main]
 
 ## ETH NGI+ 2.0
 ## https://etherscan.io/address/0xF252C5BD43907a6CAb079E990845a37a7C5730d9
-### ETH_NGI2_PROXY_ADDRESS=0xF252C5BD43907a6CAb079E990845a37a7C5730d9
+### ETH_NGI2_PROXY_ADDRESS=0xF252C5BD43907a6CAb079E990845a37a7C5730d9  # [新结构 / main]
 
 ## BSC NGI+ 2.0
 ## https://bscscan.com/address/0x50BF2924ceE59737EAD76e881643eD8569BAe6e8
-### BSC_NGI2_PROXY_ADDRESS=0x50BF2924ceE59737EAD76e881643eD8569BAe6e8
+### BSC_NGI2_PROXY_ADDRESS=0x50BF2924ceE59737EAD76e881643eD8569BAe6e8  # [新结构 / main]
 
 # ==============================================================================NGI+ 2.0
 
 # ==============================================================================EPOCH+ 2.0
 ## ETH EPOCH+ 2.0
 ## https://etherscan.io/address/0x3bE5dD4a34F1C6a112048b9dF908cED4372D5049
-### ETH_EPOCH2_PROXY_ADDRESS=0x3bE5dD4a34F1C6a112048b9dF908cED4372D5049
+### ETH_EPOCH2_PROXY_ADDRESS=0x3bE5dD4a34F1C6a112048b9dF908cED4372D5049  # [新结构 / main]
 
 # ==============================================================================EPOCH+ 2.0
 
 # ==============================================================================CASHa+ 2.0
 ## ETH CASHa+ 2.0
 ## https://etherscan.io/address/0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B
-### ETH_CASHa2_PROXY_ADDRESS=0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B
+### ETH_CASHa2_PROXY_ADDRESS=0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B  # [新结构 / main]
 
 # ==============================================================================CASHa+ 2.0
 
 # ==============================================================================CNCASH+ 2.0
 ## ETH CNCASH+ 2.0
 ## https://etherscan.io/address/0x286D9F099587f567EcE2b70eBB64B94ACD672d76
-### ETH_CNCASH2_PROXY_ADDRESS=0x286D9F099587f567EcE2b70eBB64B94ACD672d76
+### ETH_CNCASH2_PROXY_ADDRESS=0x286D9F099587f567EcE2b70eBB64B94ACD672d76  # [新结构 / main]
 
 # ==============================================================================CNCASH+ 2.0
 
@@ -202,7 +207,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 
 ## ETH GTCASH+ 3.0
 ## https://etherscan.io/address/0x63E19Fb814Eb737730ac0aFbb52B351695B97176
-### ETH_GTCASH3_PROXY_ADDRESS=0x63E19Fb814Eb737730ac0aFbb52B351695B97176
+### ETH_GTCASH3_PROXY_ADDRESS=0x63E19Fb814Eb737730ac0aFbb52B351695B97176  # [新结构 / main]
 ### ETH_GTCASH3_TIMELOCK_ADDRESS=0x15cf9c4bdf3CC1b6743cc09E3F7C49B4f2043a56
 
 # ==============================================================================GTCASH+ 3.0
@@ -211,7 +216,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 
 ## ETH HTCASH+ 3.0
 ## https://etherscan.io/address/0x50bDAFf4bCeB852F006F657f47C68fCC417f7bEb
-### ETH_HTCASH3_PROXY_ADDRESS=0x50bDAFf4bCeB852F006F657f47C68fCC417f7bEb
+### ETH_HTCASH3_PROXY_ADDRESS=0x50bDAFf4bCeB852F006F657f47C68fCC417f7bEb  # [新结构 / main]
 ### ETH_HTCASH3_TIMELOCK_ADDRESS=0x493127FB112d1d93F30F0525eD77978882A8eD91
 
 # ==============================================================================HTCASH+ 3.0
