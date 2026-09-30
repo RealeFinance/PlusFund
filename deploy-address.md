@@ -39,9 +39,11 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 # PlusFund 维护路线与分支登记标注（对照 main 与 feature/stoken1.0）：
 # [旧结构 / stoken1.0] 使用 _tokenList + _tokenMap；不直接升级到 Wallet 主线。
 # [新结构 / main] 使用 Wallet 映射；可在 main 同存储家族内演进。任何代理升级前仍须做 storage validation，并检查权限/Timelock及待处理链上申赎。
-# [新结构 / main；分支独有登记] 对应的 main 部署脚本与同提交 PlusFund 源码均使用 Wallet；地址簿仅见于 main，仍需链上确认代理当前 implementation。
+# [新结构 / main；分支独有登记] 对应的 main 部署脚本和同提交源码使用 Wallet；链上 Wallet getter 已确认，24 个代理 storage validation 均通过；准确源码版本仍须单独核验。
 # [分支登记差异 / stoken1.0] 仅在 stoken1.0 地址簿出现；不应因 main 缺项就删除，需逐链确认后再同步。
 # 2026-09-30 逐变量比较：main 有 10 个独有地址字段，stoken1.0 有 2 个独有地址字段；同名字段的地址值未发现冲突。
+# 2026-09-30 主网链上只读核验：24 个登记为新结构的代理均有 EIP-1967 implementation，且 `wallets(address)` 均返回 96 字节 Wallet 字段。
+# OpenZeppelin validateUpgrade 以当前 main 2.1.2 对上述 24 个代理逐一校验，24/24 PASS；权限和未完成业务状态仍须升级前核验。
 # 测试网不计正式线上产品统计；相同地址在不同链按不同部署判断。完整差异见 docs/NGI+与PlusFund合约审计及版本维护现状.md。
 ## hashkey testnet cash+
 ### HASHKEY_TESTNET_CASH_PROXY_ADDRESS=0x40fc7a4Dfcade4021946f028f6fCf43666110847
@@ -161,7 +163,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 
 ## ETH YIELD+ 2.0
 ## https://etherscan.io/address/0x37d03D8caBfB617e455D0cAA0Cf1cdc5b8F3BDEe
-### ETH_YIELD2_PROXY_ADDRESS=0x37d03D8caBfB617e455D0cAA0Cf1cdc5b8F3BDEe  # [待核对：需读取该代理当前 implementation 存储布局]
+### ETH_YIELD2_PROXY_ADDRESS=0x37d03D8caBfB617e455D0cAA0Cf1cdc5b8F3BDEe  # [新结构 / Wallet getter已确认；storage validation PASS；源码版本标识待核]
 
 ## BSC YIELD+ 2.0
 ## https://bscscan.com/address/0xCCa4656F736490cf2155589aEcd8382765a3e691
@@ -185,7 +187,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 # ==============================================================================NGI+ 2.0
 
 # ==============================================================================PGNGI+ 2.0
-# [main 分支独有产品登记：stoken1.0 地址簿未列出；按当前 main 部署记录保留，代理实现/存储结构仍须链上核验]
+# [main 分支独有产品登记：stoken1.0 地址簿未列出；链上 wallets(address) 已确认 Wallet 新结构，storage validation PASS；准确实现源码仍须核验]
 ## Pharos PGNGI+ 2.0
 ## https://pharos.socialscan.io/address/0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D
 ### PHAROS_MAINNET_PGNGI2_PROXY_ADDRESS=0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D (14578508)  # [新结构 / main；分支独有登记]
@@ -247,7 +249,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 
 
 # ==============================================================================mYIELD+ 3.0
-# [新结构 / main；main 地址簿有登记而 stoken1.0 地址簿缺项。部署脚本与对应源码为 Wallet，链上当前 implementation 仍应复核]
+# [新结构 / main；main 地址簿有登记而 stoken1.0 地址簿缺项。链上 Wallet getter 已确认且 storage validation PASS；准确源码版本仍须核验]
 
 ## BSC mYIELD+ 3.0
 ## https://bscscan.com/address/0xFb8cB7630BC3cb34a6A9846Ec03De3A32393Ee65
@@ -262,7 +264,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 # ==============================================================================mYIELD+ 3.0
 
 # ==============================================================================GFCASH+ 3.0
-# [新结构 / main；main 地址簿有登记而 stoken1.0 地址簿缺项。部署脚本与对应源码为 Wallet，链上当前 implementation 仍应复核]
+# [新结构 / main；main 地址簿有登记而 stoken1.0 地址簿缺项。链上 Wallet getter 已确认且 storage validation PASS；准确源码版本仍须核验]
 
 ## ETH GFCASH+ 3.0
 ## https://etherscan.io/address/0x46c8055eD9D3c7DF3f515EE6Cd4a5b8616156719
@@ -271,7 +273,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 # ==============================================================================GFCASH+ 3.0
 
 # ==============================================================================TKCASH+ 3.0
-# [新结构 / main；main 地址簿有登记而 stoken1.0 地址簿缺项。部署脚本与对应源码为 Wallet，链上当前 implementation 仍应复核]
+# [新结构 / main；main 地址簿有登记而 stoken1.0 地址簿缺项。链上 Wallet getter 已确认且 storage validation PASS；准确源码版本仍须核验]
 
 ## ETH TKCASH+ 3.0
 ## https://etherscan.io/address/0x257c71ecDB944EC09780c97e874ED41e98E00913

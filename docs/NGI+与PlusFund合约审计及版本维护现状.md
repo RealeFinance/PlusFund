@@ -1,14 +1,14 @@
 # NGI+ 与 PlusFund 合约审计及版本维护现状
 
-> 资料快照：2026-09-30。本文对照当前 `main` 与 `feature/stoken1.0` 分支的代码及地址簿；地址簿比对不等于链上实时核验，也不替代正式审计。
+> 资料快照：2026-09-30。本文对照当前 `main` 与 `feature/stoken1.0` 分支代码、地址簿，并补充读取 24 个主网代理的链上 implementation slot 和视图函数。链上只读快照不替代正式升级校验或审计。
 
 ## 一页结论
 
 - 当前按两种存储结构、两条长期维护线管理：`main` 的 `Wallet` 队列结构；`feature/stoken1.0` 的 `_tokenList + _tokenMap` 结构。
-- 新结构部署归入 `main` 维护线。当前 main 合约版本为 `2.1.2`；只能在同一 Wallet 存储家族内按升级流程推进，逐代理通过存储布局、权限、初始化和待处理业务状态检查。
+- 新结构部署归入 `main` 维护线。当前 main 合约版本为 `2.1.2`；本次对地址簿中 24 个主网新结构代理逐个运行 OpenZeppelin `validateUpgrade`，存储布局校验 24/24 通过。实际升级仍须逐代理确认权限、初始化和待处理业务状态。
 - 旧结构部署归入 `stoken1.0` 维护线，标识为 `VERSION_3.1.0`。它与 main 的版本号不是同一编号序列，不能按数字大小比较，也不能把 Wallet 实现直接升级到旧代理。
 - `main` 与 `stoken1.0` 的地址簿确有分支差异：PGNGI+ 2.0、mYIELD+ 3.0、GFCASH+ 3.0、TKCASH+ 3.0 虽只登记在 main，但对应部署提交调用 `PlusFund`，同提交源码采用 Wallet 新结构；反向差异是旧 Cash+ 的 BNBT/BSC Timelock 仅见于 stoken1.0 地址簿。
-- “只在某分支地址簿出现”是登记来源；新/旧结构判断另以部署脚本和对应提交源码中的存储结构为证据。链上当前 implementation 和治理关系仍需逐地址复核。
+- “只在某分支地址簿出现”是登记来源；新/旧结构判断另以部署脚本、对应源码和链上 Wallet getter 为证据。24 个代理的 implementation slot 已读取；准确源码身份和治理关系仍需逐地址复核。
 - SlowMist NGI+ 报告绑定的是另一个仓库 `RealeFinance/ngi-plus` 的指定 commit，不能自动覆盖当前 main、stoken1.0 或所有线上代理。
 
 ## 1. 两条代码维护线
@@ -21,8 +21,7 @@
 ### 产品路线（按现有结构核对）
 
 - **旧结构 / stoken1.0**：旧版 Cash+、旧版 Bond+、AMCash、AMCash+ 的已标注代理。
-- **新结构 / main**：Cash+ 2.0、Bond+ 2.0、已核对的 Yield+ 2.0、NGI+ 2.0、Epoch+ 2.0、CASHa+ 2.0、CNCASH+ 2.0、GTCASH+ 3.0、HTCASH+ 3.0，以及 main 地址簿独有的 PGNGI+ 2.0、mYIELD+ 3.0、GFCASH+ 3.0、TKCASH+ 3.0。独有产品的结构由部署时的脚本和源码确认；当前代理 implementation 仍应链上复核。
-- **结构待核**：ETH Yield+ 2.0；现有记录不足以确认该代理当前 implementation 的存储布局。
+- **新结构 / main**：Cash+ 2.0、Bond+ 2.0、Yield+ 2.0、NGI+ 2.0、Epoch+ 2.0、CASHa+ 2.0、CNCASH+ 2.0、GTCASH+ 3.0、HTCASH+ 3.0，以及 main 地址簿独有的 PGNGI+ 2.0、mYIELD+ 3.0、GFCASH+ 3.0、TKCASH+ 3.0。24 个登记代理的 Wallet getter 均已链上核实，且 storage validation 均通过。
 - 测试网条目保留作技术参考，不计入正式线上产品统计。相同地址若在不同链，按不同链的独立部署核对。
 
 ## 2. main 与 stoken1.0 部署地址簿差异
@@ -49,7 +48,24 @@
 
 完整逐链地址与标注见项目根目录 [`deploy-address.md`](../deploy-address.md)。
 
-## 3. NGI+ 审计报告基线
+## 3. 2026-09-30 主网 implementation 核验与升级判断
+
+对地址簿中 24 个正式主网新结构代理，通过五条只读 RPC（Ethereum、BSC、Pharos、Plume、Arc）读取 EIP-1967 implementation slot、代理代码、`version()` 和 `wallets(address)`。24 个代理的 `wallets(address)` 均成功返回 96 字节（Wallet 的 3 个字段）；版本读数为 15 个 `2.1.0`、1 个 `2.1.2`、8 个 `version()` 回退。当前 target artifact 的源内容与 `contracts/token/PlusFund.sol` 完全一致，Solidity `0.8.22`、optimizer 100、`viaIR` 配置与当前 main 相同。随后使用该 artifact 和各链 `.openzeppelin` manifest 中与链上 implementation 地址对应的旧布局，逐代理运行 OpenZeppelin `validateUpgrade(proxy, PlusFund, { kind: "uups" })`；Ethereum 12/12、BSC 4/4、Pharos 5/5、Plume 2/2、Arc 1/1，合计 **24/24 PASS**。
+
+| 链 / 产品 | 链上读数 | implementation | 升级到当前 main `2.1.2` 的结论 |
+| --- | --- | --- | --- |
+| Pharos：Cash+ 2.0、Bond+ 2.0、NGI+ 2.0、PGNGI+ 2.0 | `version() = 2.1.0` | `0x9b88df28631994859f073efbb0ec2f8587620f45` | 4/4 OpenZeppelin storage validation PASS。 |
+| BSC：NGI+ 2.0、PGNGI+ 2.0、mYIELD+ 3.0 | `version() = 2.1.0` | `0x820d0a67d73b6f9b087ad0cdf1f94262184bc524` | 3/3 PASS。 |
+| Ethereum：Bond+ 2.0、NGI+ 2.0、PGNGI+ 2.0、mYIELD+ 3.0、GFCASH+ 3.0、TKCASH+ 3.0 | `version() = 2.1.0` | `0x19e13ab58f54ff27df2254d858acbbe2e96c1fa9` | 6/6 PASS。 |
+| Ethereum：GTCASH+ 3.0、HTCASH+ 3.0 | `version() = 2.1.0` | `0xef62080cd8648cf996932dc27544606e6ae45ee9` | 2/2 PASS，虽 implementation 地址与其他 main 实现不同。 |
+| Arc：PGNGI+ 2.0 | `version() = 2.1.2` | `0x5081c66e72241d3362b4889e26d55ffdd0a2431f` | 1/1 PASS。链上 runtime bytecode 与本地当前 `PlusFund` 构建在剥离 Solidity metadata 后仍不相同；源码/业务逻辑一致性仍需核对。 |
+| Pharos：Yield+ 2.0；BSC：Yield+ 2.0；Ethereum：Yield+ 2.0、CASHa+ 2.0、CNCASH+ 2.0；Plume：Bond+ 2.0、Yield+ 2.0；Ethereum：Epoch+ 2.0 | `version()` 回退；`wallets(address)` 返回 96 字节 Wallet 字段 | 分别为 Pharos `0xd838b92c0e485cc77e72b2c3de52b1b7ccf02351`；BSC `0x804063066723cbc79d5c41452eb581c05065d520`；Ethereum `0x10136379a5a0c7003a33cc1d0db00ecd52a0f75f` / Epoch `0xb918652fc5c3fc3ddaeaa17049e172e3fd07a77e`；Plume `0x5081c66e72241d3362b4889e26d55ffdd0a2431f` | 8/8 OpenZeppelin storage validation PASS；精确源码标识仍待补录。 |
+
+**结论：**旧结构 `_tokenList + _tokenMap` 不能直接升级到 Wallet main 线。24 个登记的线上新结构代理均确认提供 Wallet 接口，并且逐代理对当前 main `2.1.2` 的 OpenZeppelin storage validation **24/24 PASS**。因此，可以确认这 24 个代理在存储布局层面可升级到当前 main `2.1.2`。Arc 的链上 `2.1.2` runtime 与本地构建不完全一致，8 个代理的 `version()` 也不可读；这不影响上述 storage validation 结果，但仍需补齐准确源码标识并确认业务逻辑来源。
+
+**storage validation PASS 不等于此刻可以直接执行升级。**每个代理仍需确认 UUPS 升级角色/Timelock、初始化状态和未完成业务状态。`2.1.1/2.1.2` 使用新增的 `isOnChain` 标记处理申购/赎回记录；旧版本遗留的待处理申购或赎回可能因新增字段默认 `false` 而走错路径。当前 Runbook 已要求扫描未完成赎回，但还没有等价的未完成申购扫描。
+
+## 4. NGI+ 审计报告基线
 
 审计文件为用户提供的 `NGI+ Smart Contract Audit Report.pdf`。报告记载：
 
@@ -60,7 +76,7 @@
 
 **重要范围限制：**报告所指 commit 不在当前 PlusFund 本地 Git 历史，且报告源仓库和当前仓库不同。本文只能将报告文字与当前两条本地代码线对照；要做精确源码 diff，须取得该审计 commit 的源码快照，或由审计机构确认两个仓库与交付代码的关系。Wallet 描述也意味着不能由这份报告推定数组结构旧线已审计。
 
-## 4. 审计发现和当前状态
+## 5. 审计发现和当前状态
 
 | 编号 | 报告发现 | 当前 main 对照 | 判断 |
 | --- | --- | --- | --- |
@@ -69,7 +85,7 @@
 
 报告里的 Acknowledged 不是审计复测通过，也不是线上整改已完成的证据。当前材料中尚未找到该报告的正式整改复审文件。
 
-## 5. 报告之后的本地代码演进
+## 6. 报告之后的本地代码演进
 
 由于审计 commit 不在 PlusFund 本地历史，下表是审计日期后本仓库可见的演进记录，不应称为相对审计基线的精确行级差异：
 
@@ -86,7 +102,7 @@
 
 旧线 v3.1.0 的代码差异及存储/权限检查材料位于 `feature/stoken1.0` 分支的 `docs/contract-upgrade-v3.1.0/`（当前 main 不含这些文件）；它们是项目内部材料，不是第三方审计结论。
 
-## 6. 下一版审计基线建议
+## 7. 下一版审计基线建议
 
 1. 以冻结后的 main 明确 commit 作为新结构审计对象，记录仓库 URL、commit SHA、Solidity/优化参数、依赖版本、源码包、构建产物和 storage layout；不要只写“最新代码”。
 2. 将 `feature/stoken1.0` 旧结构单独纳入审计或单独出报告/附录。若目标仍是一份报告覆盖两线，委托范围必须明确包含两个 commit、两个实现及各自的差异和升级约束。
@@ -94,12 +110,14 @@
 4. 纳入并复核 N1/N2，要求提供整改代码或部署配置证据，并由审计机构复测；同时覆盖重复 burn 防护、链上/链下模式隔离等 2026-08 后新增逻辑。
 5. 对 main 地址簿独有的 PGNGI、mYIELD、GFCASH、TKCASH 产品，已可按部署提交归入 Wallet 新结构 / main；审计与升级前仍要核验代理当前 implementation、活跃状态和治理关系，避免因 stoken1.0 地址簿缺项而漏列。
 
-## 7. 待核实项
+## 8. 待核实项
 
 - 取得报告引用的 `ngi-plus` commit 源码快照，厘清与当前 PlusFund 的关系并做精确 diff。
-- 对所有登记地址读取链上 implementation slot/验证源码；特别核对 ETH Yield+ 2.0、main 独有产品当前是否仍指向 Wallet 实现，以及 `0x048A8AFA...` 的用途。
+- 对表中版本函数回退的 8 个实现及 Arc `2.1.2` 实现补录准确源码 commit/构建来源；storage validation 已通过，但源码/业务逻辑对应关系仍待确认。
+- 对全部新结构代理逐一确认升级角色/Timelock、初始化状态、未完成申购和赎回状态；为未完成申购补充扫描流程。
+- 核对 `0x048A8AFA...` 的用途。
 - 核实 stoken1.0 地址簿中 BNBT/BSC Cash+ Timelock 记录是否仍为真实治理配置，并同步给 main 地址簿的正式地址清单。
-- 逐代理核对 main 主网地址的真实实现版本、存储布局、Safe 阈值、Timelock 延迟及各角色持有人。
+- 补录版本函数回退及 Arc `2.1.2` 的源码/构建身份；逐代理核对 Safe 阈值、Timelock 延迟、升级角色持有人及待处理业务状态（implementation slot 和 storage validation 已完成）。
 - 确认 2026-08 后是否还有未纳入当前本地 main HEAD 的合约实现提交，以及是否有 SlowMist 整改复审报告。
 
 ## 管理层简答
