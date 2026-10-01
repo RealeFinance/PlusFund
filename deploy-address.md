@@ -1,3 +1,26 @@
+# 部署地址统一登记
+#
+# 本文件是 PlusFund 部署地址的唯一合并登记文件，内容合并自：
+# - main
+# - feature/stoken1.0
+#
+# 合并规则：
+# 1. 同名变量在两个分支中的地址值未发现冲突；保留为一条记录。
+# 2. main 独有的 PGNGI+、mYIELD+、GFCASH+、TKCASH+ 记录一并保留。
+# 3. feature/stoken1.0 独有或仅在旧地址簿出现的 Timelock/测试网记录不删除，明确标记来源和待核实状态。
+# 4. 代理合约按实现结构标记；Timelock 默认继承对应代理的结构，除非另有“关系待核”说明。
+# 5. 相同地址部署在不同链上按不同部署记录处理；测试网不计入正式主网产品统计。
+#
+# 结构标记：
+# [新结构 / main]      使用 Wallet 映射（Wallet 新结构家族），可在 main 维护线上继续评估升级。
+# [旧结构 / stoken1.0] 使用 _tokenList + _tokenMap，不直接升级到 Wallet 主线。
+# [待核实]             当前资料不足以确认实现结构、代理关系或业务用途，不做升级推断。
+# [非 PlusFund]        配套地址或其他系统地址，不适用 PlusFund 新旧结构分类。
+#
+# 所有代理升级前仍须逐代理执行 storage validation，并核对 implementation、权限、Timelock
+# 和未完成的链上申购/赎回状态。2026-09-30 的主网只读核验显示：已登记为新结构的 24 个代理
+# 均有 EIP-1967 implementation，wallets(address) 均返回 96 字节 Wallet 字段；当前 main 2.1.2
+# 对这 24 个代理的 OpenZeppelin validateUpgrade 均通过，但这不替代权限和业务状态核验。
 
 # 多签
 TOKEN_KYC_ADMIN=0xCaCE62A138C20E7eE3CA74F52CC8D81Dd5b54017
@@ -36,32 +59,24 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 
 
 # ==============================================================================cash+
-# PlusFund 维护路线与分支登记标注（对照 main 与 feature/stoken1.0）：
-# [旧结构 / stoken1.0] 使用 _tokenList + _tokenMap；不直接升级到 Wallet 主线。
-# [新结构 / main] 使用 Wallet 映射；可在 main 同存储家族内演进。任何代理升级前仍须做 storage validation，并检查权限/Timelock及待处理链上申赎。
-# [新结构 / main；分支独有登记] 对应的 main 部署脚本和同提交源码使用 Wallet；链上 Wallet getter 已确认，24 个代理 storage validation 均通过；准确源码版本仍须单独核验。
-# [分支登记差异 / stoken1.0] 仅在 stoken1.0 地址簿出现；不应因 main 缺项就删除，需逐链确认后再同步。
-# 2026-09-30 逐变量比较：main 有 10 个独有地址字段，stoken1.0 有 2 个独有地址字段；同名字段的地址值未发现冲突。
-# 2026-09-30 主网链上只读核验：24 个登记为新结构的代理均有 EIP-1967 implementation，且 `wallets(address)` 均返回 96 字节 Wallet 字段。
-# OpenZeppelin validateUpgrade 以当前 main 2.1.2 对上述 24 个代理逐一校验，24/24 PASS；权限和未完成业务状态仍须升级前核验。
-# 测试网不计正式线上产品统计；相同地址在不同链按不同部署判断。完整差异见 docs/NGI+与PlusFund合约审计及版本维护现状.md。
+# PlusFund 结构登记从此处开始；上方为通用地址和多签记录。
 ## hashkey testnet cash+
-### HASHKEY_TESTNET_CASH_PROXY_ADDRESS=0x40fc7a4Dfcade4021946f028f6fCf43666110847
-### HASHKEY_TESTNET_USDC_PROXY_ADDRESS=0x703A0B94A49F765107e3e4abEB4FC3E5bac7248f
+### HASHKEY_TESTNET_CASH_PROXY_ADDRESS=0x40fc7a4Dfcade4021946f028f6fCf43666110847  # [旧结构 / stoken1.0；测试网，不计正式统计]
+### HASHKEY_TESTNET_USDC_PROXY_ADDRESS=0x703A0B94A49F765107e3e4abEB4FC3E5bac7248f  # [非 PlusFund；配套测试币地址，结构不适用]
 
 
 ## BNBT (BSC Testnet) cash+
 ## https://testnet.bscscan.com/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980
 ### BNBT_CASH_PROXY_ADDRESS=0x4013361546efe989Efd4a1242aDD5Ea88915e980  # [旧结构 / stoken1.0；测试网，不计正式统计]
-### BNBT_CASH_TIMELOCK_ADDRESS=0xAD4fb34AA2d4AF3B55b15EFB807222B565361D1b  # [仅见于 stoken1.0 地址簿；main 缺项，待链上核实]
+### BNBT_CASH_TIMELOCK_ADDRESS=0xAD4fb34AA2d4AF3B55b15EFB807222B565361D1b  # [旧结构关联 Timelock；仅见于 feature/stoken1.0 原始地址簿，代理关系待链上核实]
 ### BNBT_MOCK_USDT_ADDRESS=0x1afB66E33b75B146D91A68dbb7E64eeb21834b6a
 ### BNBT_CASH_STOKEN_ADMIN_SAFE=0x89B416C2e456b89bFDa314fb5C400BAB66D4aADb
 
 ## BSC (Binance Smart Chain) cash+
 ## https://bscscan.com/address/0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc
 ### BSC_CASH_PROXY_ADDRESS=0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc  # [旧结构 / stoken1.0]
-### BSC_CASH_TIMELOCK_ADDRESS=0x93323EE2F4c3174E8A08ca39015C160AD308235A  # [仅见于 stoken1.0 地址簿；main 缺项，待链上核实]
-### BSC_CASH_PROXY_TEST_ADDRESS=0x048A8AFA8cF69EA53B72298d50033d1E2560b809  # [用途待核对：地址簿另标为 TESTNET_BlockList]
+### BSC_CASH_TIMELOCK_ADDRESS=0x93323EE2F4c3174E8A08ca39015C160AD308235A  # [旧结构关联 Timelock；仅见于 feature/stoken1.0 原始地址簿，代理关系待链上核实]
+### BSC_CASH_PROXY_TEST_ADDRESS=0x048A8AFA8cF69EA53B72298d50033d1E2560b809  # [非 PlusFund；用途待核对，地址簿另标为 TESTNET_BlockList]
 
 ## ETH (Ethereum) cash+
 ## https://etherscan.io/address/0x498D9329555471bF6073A5f2D047F746d522A373
@@ -234,7 +249,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 ## ETH GTCASH+ 3.0
 ## https://etherscan.io/address/0x63E19Fb814Eb737730ac0aFbb52B351695B97176
 ### ETH_GTCASH3_PROXY_ADDRESS=0x63E19Fb814Eb737730ac0aFbb52B351695B97176  # [新结构 / main]
-### ETH_GTCASH3_TIMELOCK_ADDRESS=0x15cf9c4bdf3CC1b6743cc09E3F7C49B4f2043a56
+### ETH_GTCASH3_TIMELOCK_ADDRESS=0x15cf9c4bdf3CC1b6743cc09E3F7C49B4f2043a56  # [新结构关联 Timelock / main；对应关系待链上核验]
 
 # ==============================================================================GTCASH+ 3.0
 
@@ -243,7 +258,7 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 ## ETH HTCASH+ 3.0
 ## https://etherscan.io/address/0x50bDAFf4bCeB852F006F657f47C68fCC417f7bEb
 ### ETH_HTCASH3_PROXY_ADDRESS=0x50bDAFf4bCeB852F006F657f47C68fCC417f7bEb  # [新结构 / main]
-### ETH_HTCASH3_TIMELOCK_ADDRESS=0x493127FB112d1d93F30F0525eD77978882A8eD91
+### ETH_HTCASH3_TIMELOCK_ADDRESS=0x493127FB112d1d93F30F0525eD77978882A8eD91  # [新结构关联 Timelock / main；对应关系待链上核验]
 
 # ==============================================================================HTCASH+ 3.0
 
@@ -254,12 +269,12 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 ## BSC mYIELD+ 3.0
 ## https://bscscan.com/address/0xFb8cB7630BC3cb34a6A9846Ec03De3A32393Ee65
 ### BSC_MYIELD3_PROXY_ADDRESS=0xFb8cB7630BC3cb34a6A9846Ec03De3A32393Ee65  # [新结构 / main；分支独有登记]
-### BSC_MYIELD3_TIMELOCK_ADDRESS=0x87a1A531090bc58b34398E3cBa4C9b00c6B9231E  # [main 独有登记；Timelock 与代理关系待核]
+### BSC_MYIELD3_TIMELOCK_ADDRESS=0x87a1A531090bc58b34398E3cBa4C9b00c6B9231E  # [新结构关联 Timelock / main；对应关系待链上核验]
 
 ## ETH mYIELD+ 3.0
 ## https://etherscan.io/address/0xf3a2a5de306b063D75C86B6352832639b7263a3B
 ### ETH_MYIELD3_PROXY_ADDRESS=0xf3a2a5de306b063D75C86B6352832639b7263a3B  # [新结构 / main；分支独有登记]
-### ETH_MYIELD3_TIMELOCK_ADDRESS=0x6b687fBBca04b21a4541b1a8CC319f407EA85eE1  # [main 独有登记；Timelock 与代理关系待核]
+### ETH_MYIELD3_TIMELOCK_ADDRESS=0x6b687fBBca04b21a4541b1a8CC319f407EA85eE1  # [新结构关联 Timelock / main；对应关系待链上核验]
 
 # ==============================================================================mYIELD+ 3.0
 
@@ -280,4 +295,3 @@ TESTNET_mAmMMF_proxy_ADDRESS=0x5142Df9767B2A28e1356953718E4bc47D0B3E2B1
 ### ETH_TKCASH3_PROXY_ADDRESS=0x257c71ecDB944EC09780c97e874ED41e98E00913  # [新结构 / main；分支独有登记]
 
 # ==============================================================================TKCASH+ 3.0
-
