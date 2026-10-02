@@ -1,38 +1,189 @@
-### 3 分钟了解如何进入开发
+# PlusFund
 
-欢迎使用云效代码管理 Codeup，通过阅读以下内容，你可以快速熟悉 Codeup ，并立即开始今天的工作。
+PlusFund is an upgradeable Solidity token infrastructure for RWA products that need subscription, redemption, token provenance, and role-based operational control across multiple EVM networks.
 
-### 提交**文件**
+The current mainline implementation is `PlusFund.version() = 2.1.2`.
 
-Codeup 支持两种方式进行代码提交：网页端提交，以及本地 Git 客户端提交。
+Repository: [github.com/RealeFinance/PlusFund](https://github.com/RealeFinance/PlusFund)
 
-* 如需体验本地命令行操作，请先安装 Git 工具，安装方法参见[安装Git](https://help.aliyun.com/document_detail/153800.html)。
+## What this project provides
 
-* 如需体验 SSH 方式克隆和提交代码，请先在平台账号内配置 SSH 公钥，配置方法参见[配置 SSH 密钥](https://help.aliyun.com/document_detail/153709.html)。
+- Upgradeable ERC-20 tokens using UUPS proxies.
+- FIFO wallet accounting that preserves token-entry provenance during transfers and redemptions.
+- Separate on-chain and off-chain subscription/redemption workflows.
+- Configurable supported payment tokens, minimum amounts, queue length, and service-fee recipients.
+- Role-based administration, pausing, and blacklist controls.
+- Cross-chain token-data ingestion through pool-admin controlled `mint()` and `burnFrom()` interfaces.
+- `PlusFundFactory` for product deployment with ERC1967 proxies and product-specific Timelocks.
 
-* 如需体验 HTTP 方式克隆和提交代码，请先在平台账号内配置克隆账密，配置方法参见[配置 HTTPS 克隆账号密码](https://help.aliyun.com/document_detail/153710.html)。
+This repository contains smart contracts and deployment tooling. It does not provide a frontend, custody service, payment settlement service, or a complete bridge implementation.
 
-现在，你可以在 Codeup 中提交代码文件了，跟着文档「[__提交第一行代码__](https://help.aliyun.com/document_detail/153707.html?spm=a2c4g.153710.0.0.3c213774PFSMIV#6a5dbb1063ai5)」一起操作试试看吧。
+## Contract architecture
 
-<img src="https://img.alicdn.com/imgextra/i3/O1CN013zHrNR1oXgGu8ccvY_!!6000000005235-0-tps-2866-1268.jpg" width="100%" />
+```text
+PlusFund
+├── ERC20Upgradeable / ERC20PermitUpgradeable
+├── ERC20PausableUpgradeable
+├── AccessControlEnumerableUpgradeable
+├── UUPSUpgradeable
+├── BaseStorage
+└── Blacklistable
 
+PlusFundFactory
+├── ERC1967Proxy deployment
+├── CREATE2 address prediction
+├── Product configuration and duplicate-product protection
+└── Per-product TimelockController deployment
+```
 
-### 进行代码检测
+The current `PlusFund` implementation uses a `Wallet` mapping with token-entry indexes. Historical `stoken1.0` deployments use the older `_tokenList + _tokenMap` layout and must not be treated as directly upgradeable to the current Wallet-based implementation. See [deploy-address.md](./deploy-address.md) for the structure classification of each recorded deployment.
 
-开发过程中，为了更好的维护你的代码质量，你可以开启 Codeup 内置开箱即用的「[代码检测服务](https://help.aliyun.com/document_detail/434321.html)」，开启后提交或合并请求的变更将自动触发检测，识别代码编写规范和安全漏洞问题，并及时提供结果报表和修复建议。
+## Business flows
 
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01BRzI1I1IO0CR2i4Aw_!!6000000000882-0-tps-2862-1362.jpg" width="100%" />
+### Subscription
 
-### 开展代码评审
+```text
+On-chain:  onChainSubscribe → overwriteOnChainSubscribe → claim
+Off-chain: subscribe         → execute
+```
 
-功能开发完毕后，通常你需要发起「[代码评审并执行合并](https://help.aliyun.com/document_detail/153872.html)」，Codeup 支持多人协作的代码评审服务，你可以通过「[保护分支设置合并规则](https://help.aliyun.com/document_detail/153873.html?spm=a2c4g.203108.0.0.430765d1l9tTRR#p-4on-aep-l5q)」策略及「[__合并请求设置__](https://help.aliyun.com/document_detail/153874.html?spm=a2c4g.153871.0.0.3d38686cJpcdJI)」对合并过程进行流程化管控，同时提供在线代码评审及冲突解决能力，让评审过程更加流畅。
+### Redemption
 
-<img src="https://img.alicdn.com/imgextra/i1/O1CN01MaBDFH1WWcGnQqMHy_!!6000000002796-0-tps-2592-1336.jpg" width="100%" />
+```text
+On-chain:  onChainRedemption → overwriteOnChainRedemption → claimUSD
+Off-chain: redemption        → burn
+```
 
-### 成员协作
+The contract records whether a subscription or redemption is on-chain through `isOnChain`. Cross-mode entry points are rejected. An on-chain redemption burns the PlusFund token during creation and must not be processed again through the off-chain `burn()` path.
 
-是时候邀请成员一起编写卓越的代码工程了，请点击左下角「成员」邀请你的小伙伴开始协作吧！
+## Roles and controls
 
-### 更多
+The main operational roles are:
 
-Git 使用教学、高级功能指引等更多说明，参见[Codeup帮助文档](https://help.aliyun.com/document_detail/153402.html)。
+- `DEFAULT_ADMIN_ROLE`: UUPS authorization and high-privilege configuration.
+- `STOKEN_ADMIN`: operational configuration, pause control, subscription/redemption administration, and blacklist administration where assigned.
+- `POOL_ADMIN_ROLE`: controlled cross-chain `mint()` and `burnFrom()` operations.
+- `STOKEN_BLACKLIST_ADMIN_ROLE`: blacklist administration.
+
+Deployments should place privileged administration behind the configured Safe/Timelock governance process. `PlusFundFactory` enforces a minimum Timelock delay of 48 hours and validates configured governance contracts.
+
+## Repository layout
+
+```text
+contracts/
+├── token/PlusFund.sol              # Main upgradeable token implementation
+├── factory/PlusFundFactory.sol     # Proxy and Timelock deployment factory
+├── base/BaseStorage.sol            # Shared asset and supported-token storage
+├── Interfaces/IPlusFund.sol        # Data structures and events
+├── BlackList/Blacklistable.sol     # Blacklist behavior
+└── mocks/                          # Local test contracts
+
+deploy/                             # Deployment and operational scripts
+test/                               # Hardhat tests
+docs/                               # Deployment runbooks and audit notes
+deploy-address.md                   # Unified deployment address registry
+UPGRADE-v2.1.0-to-v2.1.2.md         # Version changes and upgrade guidance
+```
+
+## Requirements
+
+- Node.js 18 or newer
+- pnpm
+- An EVM RPC endpoint for the target network
+- A deployer key stored outside the repository
+
+The project uses Solidity `0.8.22`, optimizer runs `100`, and `viaIR: true`. The dependency lockfile is `pnpm-lock.yaml`.
+
+## Install and verify locally
+
+```bash
+corepack enable
+pnpm install
+
+pnpm run c
+pnpm test
+```
+
+`pnpm run c` compiles the contracts. `pnpm test` runs the Hardhat test suite, including the factory, mode-isolation, and on-chain-redemption regression tests.
+
+## Local deployment examples
+
+Deploy a local mock payment token:
+
+```bash
+pnpm exec hardhat run deploy/deploy-mock-usdc.js --network hardhat
+```
+
+Deploy the factory to a configured network:
+
+```bash
+pnpm exec hardhat run deploy/deploy-plusfund-factory.js --network bscTestnet
+```
+
+Before using a deployment script:
+
+1. Review the `DEPLOYMENT_CONFIG` values in the script.
+2. Set the required private key and RPC environment variables.
+3. Confirm the target network, implementation address, product ID, salt, roles, supported payment tokens, and Timelock configuration.
+4. Run the deployment from a clean, reviewed working tree and save the generated deployment manifest.
+
+The factory deployment flow is documented in [docs/PlusFundFactory-Token-Deployment-Runbook.md](./docs/PlusFundFactory-Token-Deployment-Runbook.md).
+
+## Environment and deployment safety
+
+Do not commit private keys, API keys, or production deployment configuration to Git. The repository ignores `.env`; create it locally and provide only the variables required by the selected network, such as:
+
+```text
+PRIVATE_KEY_2=your_deployer_private_key
+ARC_RPC_URL=your_arc_rpc_url
+RPC_URL=your_scan_rpc_url
+TOKEN_ADDRESS=target_token_address
+FROM_BLOCK=deployment_block
+```
+
+Review `hardhat.config.js` before a public deployment. Network endpoints and explorer settings are configured there, and some networks may require additional custom-chain configuration.
+
+## Upgrade policy
+
+`PlusFund` uses UUPS upgrades authorized by `DEFAULT_ADMIN_ROLE`. A successful storage-layout check is necessary but not sufficient for a production upgrade.
+
+Before upgrading an existing proxy:
+
+- Run OpenZeppelin `validateUpgrade` for each proxy.
+- Confirm the implementation source, compiler settings, optimizer settings, and `viaIR` configuration.
+- Verify Safe/Timelock ownership, upgrade roles, and delay configuration.
+- Scan for unfinished subscriptions and redemptions.
+- Resolve historical on-chain records before upgrading to a version that relies on `isOnChain`; old records do not receive an automatic mode backfill.
+
+See [UPGRADE-v2.1.0-to-v2.1.2.md](./UPGRADE-v2.1.0-to-v2.1.2.md) for the version-specific change log and checklist.
+
+## Security and audit notes
+
+The repository includes audit and remediation notes, but they are documentation of the current project state and are not a guarantee of security. Review:
+
+- [Audit and remediation status](./docs/PlusFund-Audit-Remediation-Status-2026-08-24.md)
+- [NGI+ and PlusFund maintenance status](./docs/NGI+与PlusFund合约审计及版本维护现状.md)
+- [Deployment runbook](./docs/PlusFundFactory-Token-Deployment-Runbook.md)
+
+If you discover a security issue, avoid opening a public issue with exploitable details. Contact the project maintainers through the repository's configured security channel first.
+
+## Main dependencies
+
+```text
+@openzeppelin/contracts 5.4.0
+@openzeppelin/contracts-upgradeable 5.4.0
+@chainlink/contracts 1.4.0
+dotenv 16.6.1
+hardhat 2.26.3
+@openzeppelin/hardhat-upgrades 2.5.1
+@nomicfoundation/hardhat-toolbox 6.1.0
+@nomicfoundation/hardhat-chai-matchers 2.1.0
+@nomicfoundation/hardhat-verify 2.1.1
+patch-package 8.0.1
+```
+
+These are the resolved versions in `pnpm-lock.yaml`; the version ranges declared in `package.json` may be broader.
+
+## License
+
+This repository currently does not include a `LICENSE` file. Confirm the project’s licensing terms with the maintainers before redistributing or using the contracts in another product.
