@@ -103,7 +103,7 @@ module.exports = {
       timeout: 2000000,
     },
     "arc-mainnet": {
-      url: process.env.ARC_RPC_URL,
+      url: process.env.ARC_RPC_URL || "https://rpc.blockdaemon.mainnet.arc.io",
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 5042,
       gasPrice: "auto",

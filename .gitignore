@@ -19,4 +19,5 @@ ignition/deployments/chain-31337
 reasonix.toml
 .reasonix
 .codegraph
+/yarn.lock
 .pnp*
