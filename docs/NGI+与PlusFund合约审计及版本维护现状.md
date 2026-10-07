@@ -2,6 +2,8 @@
 
 > 资料快照：2026-09-30。本文对照当前 `main` 与 `feature/stoken1.0` 分支代码、地址簿，并补充读取 24 个主网代理的链上 implementation slot 和视图函数。链上只读快照不替代正式升级校验或审计。
 
+> 后续更新（2026-10-07）：`main` 源码版号已提升到 `2.1.3`。本文第 1–8 节的链上读取和 24/24 存储布局校验仍是 2026-09-30 针对 `2.1.2` 的历史结果，不代表已对 `2.1.3` 重新验证；本次更新记录见第 9 节。
+
 ## 一页结论
 
 - 当前按两种存储结构、两条长期维护线管理：`main` 的 `Wallet` 队列结构；`feature/stoken1.0` 的 `_tokenList + _tokenMap` 结构。
@@ -15,7 +17,7 @@
 
 | 维护线 | 存储结构 | 当前代码标识 | 维护/升级原则 |
 | --- | --- | --- | --- |
-| `main` 新结构 | `mapping(address => Wallet) public wallets`；Wallet 中用 head/tail 索引管理 TokenEntry | PlusFund `version() = "2.1.2"`；main HEAD `daa0357`（2026-09-26，近期提交为部署配置检查） | 同一 Wallet 存储家族内演进；升级前逐代理做 storage validation、角色/Timelock检查、初始化检查和未完成申赎核对。 |
+| `main` 新结构 | `mapping(address => Wallet) public wallets`；Wallet 中用 head/tail 索引管理 TokenEntry | 截至本报告快照：PlusFund `version() = "2.1.2"`；main HEAD `daa0357`（2026-09-26，近期提交为部署配置检查） | 同一 Wallet 存储家族内演进；升级前逐代理做 storage validation、角色/Timelock检查、初始化检查和未完成申赎核对。 |
 | `feature/stoken1.0` 旧结构 | `_tokenList` + `_tokenMap`，按账户保存 Token ID 列表和余额 | `VERSION = keccak256("VERSION_3.1.0")`；当前 HEAD `5552624`（2026-09-30，文档提交），最近代码基线 `5773008`（2026-07-26） | 旧结构修复和升级长期留在 stoken1.0；不直接跨到 main 的 Wallet 存储结构。 |
 
 ### 产品路线（按现有结构核对）
@@ -81,7 +83,7 @@
 | 编号 | 报告发现 | 当前 main 对照 | 判断 |
 | --- | --- | --- | --- |
 | N1，Suggestion | `claimUSD` 使用 `safeTransferFrom`；若 `assetSender` 是合约自身且未配置自授权，赎回可能失败。报告建议合约自持资产场景改用 `safeTransfer`；团队回应会按部署 SOP 将发送地址设置为预备 Safe。 | 当前 main 仍对 `assetSender` 使用 `safeTransferFrom`。代码另有限制只能由赎回用户领取，但这不解决 self-allowance 风险。 | 代码未彻底消除此风险，仍依赖资产发送地址配置/SOP；逐代理核验 `assetSender`、余额和 allowance。 |
-| N2，Medium | `STOKEN_ADMIN` 控制多个申赎、执行/销毁、资产参数和黑名单操作，存在权限集中风险；建议多签/Timelock并逐步拆分权限。 | main 将资产接收方、发送方和服务费接收方配置放到 `DEFAULT_ADMIN_ROLE`；申赎操作、暂停、黑名单等仍有多项由 `STOKEN_ADMIN` 控制。仓库有 Safe/Timelock 脚本示例，但不能证明链上已按此配置。 | 部分隔离、未全面拆权；线上治理状态待逐代理核实 Safe 阈值、Timelock 延迟、proposer/executor 和角色持有人。 |
+| N2，Medium | `STOKEN_ADMIN` 控制多个申赎、执行/销毁、资产参数和黑名单操作，存在权限集中风险；建议多签/Timelock并逐步拆分权限。 | 截至 2026-09-30，main 将资产接收方、发送方和服务费接收方配置放到 `DEFAULT_ADMIN_ROLE`；申赎操作、暂停、黑名单等仍由该业务角色控制。2.1.3 将代码标识改名为 `PLUSFUND_ADMIN`，但保留相同角色 ID，权限范围未拆分。仓库有 Safe/Timelock 脚本示例，但不能证明链上已按此配置。 | 改名不等于权限风险整改；仍未全面拆权。线上治理状态待逐代理核实 Safe 阈值、Timelock 延迟、proposer/executor 和角色持有人。 |
 
 报告里的 Acknowledged 不是审计复测通过，也不是线上整改已完成的证据。当前材料中尚未找到该报告的正式整改复审文件。
 
@@ -128,3 +130,11 @@
 - **main 与 stoken1.0 地址簿一样吗？**不一样。main 多列的 PGNGI+、mYIELD+、GFCASH+、TKCASH+ 已依据部署提交/源码标为新结构 / main；stoken1.0 多列 BNBT/BSC 旧 Cash+ Timelock；同名地址记录未发现冲突。
 - **NGI+ 报告是否覆盖全部产品和当前代码？**不能据当前证据这么说；报告只绑定其引用的 ngi-plus commit，旧结构线和当前代理部署均需明确纳入/核实。
 - **新报告以什么为准？**冻结后的 main commit 做新结构主审计，stoken1.0 单独审计或明确纳入同份报告；按相同实现分组复用审计结论，部署配置逐地址核查。
+
+## 9. 2026-10-07：main v2.1.3 变更记录
+
+- `PlusFund.version()` 从 `2.1.2` 更新为 `2.1.3`。
+- 业务角色代码标识和公共 getter 从 `STOKEN_ADMIN` 改为 `PLUSFUND_ADMIN`。新常量固定为旧角色 ID `0x1af9f09295e73130ad6fd58704a26fe468d3f3e194879e90badd83ab85dd89f9`（即 `keccak256("STOKEN_ADMIN")`），因此只升级 Token 实现时，AccessControl 中已有的角色授权无需迁移。此改名未拆分权限，也不构成 N2 整改。
+- `PlusFundFactory`、部署脚本和测试改为调用 `PLUSFUND_ADMIN()`。移除旧 getter 会使仍调用 `STOKEN_ADMIN()` 的旧版已部署工厂无法通过该 getter 读取角色；若线上工厂仍承担新 Token 部署，需要另行部署/切换到更新后的工厂，或继续保留兼容 getter。
+- 本地 Hardhat 代理升级用例验证了旧 getter 代理升级后原角色授权保留、新 getter 可读、旧 getter 不可用；OpenZeppelin `validateUpgrade` 通过。工厂相关测试 9 项与升级测试 1 项通过。
+- 本地 `PlusFundModeIsolation` 的一个申购流程用例仍以 `BelowMinAmount` 回退；该路径尚未通过。本次未执行线上 RPC 核验，也未将 2026-09-30 对 24 个代理的 `2.1.2` storage validation 结果外推为 `2.1.3` 结论。升级到 `2.1.3` 前应使用新实现重新逐代理校验存储布局、升级权限和待处理业务状态。

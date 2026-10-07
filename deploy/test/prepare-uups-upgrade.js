@@ -90,8 +90,11 @@ async function main() {
       await proxy.renounceRole(ethers.id("UPGRADER_ROLE"), deployerAddress);
       console.log(`已放弃 UPGRADER_ROLE 权限`);
 
-      await proxy.renounceRole(ethers.id("STOKEN_ADMIN"), deployerAddress);
-      console.log(`已放弃 STOKEN_ADMIN 权限`);
+      await proxy.renounceRole(
+        await proxy.PLUSFUND_ADMIN(),
+        deployerAddress,
+      );
+      console.log(`已放弃 PLUSFUND_ADMIN 权限`);
 
       await proxy.renounceRole(
         await proxy.DEFAULT_ADMIN_ROLE(),

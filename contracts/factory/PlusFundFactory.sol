@@ -11,7 +11,7 @@ interface IPlusFundFactoryToken {
 
     function DEFAULT_ADMIN_ROLE() external view returns (bytes32);
 
-    function STOKEN_ADMIN() external view returns (bytes32);
+    function PLUSFUND_ADMIN() external view returns (bytes32);
 
     function POOL_ADMIN_ROLE() external view returns (bytes32);
 
@@ -230,7 +230,7 @@ contract PlusFundFactory is AccessControl {
 
         IPlusFundFactoryToken token = IPlusFundFactoryToken(proxy);
         bytes32 defaultAdminRole = token.DEFAULT_ADMIN_ROLE();
-        bytes32 stokenAdminRole = token.STOKEN_ADMIN();
+        bytes32 stokenAdminRole = token.PLUSFUND_ADMIN();
 
         token.grantRole(stokenAdminRole, address(this));
         token.setAssetRecipient(config.assetRecipient);

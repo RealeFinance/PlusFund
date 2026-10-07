@@ -28,7 +28,7 @@ describe("PlusFund online/offline mode isolation", function () {
     );
     await token.waitForDeployment();
 
-    const stokenAdmin = await token.STOKEN_ADMIN();
+    const stokenAdmin = await token.PLUSFUND_ADMIN();
     const poolAdmin = await token.POOL_ADMIN_ROLE();
     await token.grantRole(stokenAdmin, admin.address);
     await token.grantRole(poolAdmin, admin.address);

@@ -285,7 +285,7 @@ async function deployToken(factory, deployer, tokenConfig, salt) {
   const token = await ethers.getContractAt("PlusFund", proxy);
 
   const defaultAdminRole = await token.DEFAULT_ADMIN_ROLE();
-  const stokenAdminRole = await token.STOKEN_ADMIN();
+  const stokenAdminRole = await token.PLUSFUND_ADMIN();
   const poolAdminRole = await token.POOL_ADMIN_ROLE();
   const timelockAdmin = await token.hasRole(defaultAdminRole, timelock);
   const stokenAdminGranted = await token.hasRole(

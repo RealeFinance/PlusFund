@@ -44,7 +44,8 @@ contract PlusFund is
     using SafeERC20 for IERC20;
 
     // ===== Roles ======
-    bytes32 public constant STOKEN_ADMIN = keccak256("STOKEN_ADMIN");
+    bytes32 public constant PLUSFUND_ADMIN =
+        0x1af9f09295e73130ad6fd58704a26fe468d3f3e194879e90badd83ab85dd89f9;
     bytes32 public constant POOL_ADMIN_ROLE = keccak256("POOL_ADMIN_ROLE");
 
     // ====== Constants ======
@@ -129,11 +130,11 @@ contract PlusFund is
         address newImplementation
     ) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
-    function pause() public onlyRole(STOKEN_ADMIN) {
+    function pause() public onlyRole(PLUSFUND_ADMIN) {
         _pause();
     }
 
-    function unpause() public onlyRole(STOKEN_ADMIN) {
+    function unpause() public onlyRole(PLUSFUND_ADMIN) {
         _unpause();
     }
 
@@ -157,7 +158,7 @@ contract PlusFund is
     }
 
     function version() public pure returns (string memory) {
-        return "2.1.2";
+        return "2.1.3";
     }
 
     /**
@@ -234,7 +235,7 @@ contract PlusFund is
         string memory offChainId
     )
         external
-        onlyRole(STOKEN_ADMIN)
+        onlyRole(PLUSFUND_ADMIN)
         notBlacklisted(_subscribeDataMap[subscriptionId].user)
         whenNotPaused
     {
@@ -284,7 +285,7 @@ contract PlusFund is
         string memory offChainId
     )
         external
-        onlyRole(STOKEN_ADMIN)
+        onlyRole(PLUSFUND_ADMIN)
         notBlacklisted(user)
         zeroAddress(user)
         zeroAddress(uAddress)
@@ -416,7 +417,7 @@ contract PlusFund is
         bytes32 udaTxHash
     )
         external
-        onlyRole(STOKEN_ADMIN)
+        onlyRole(PLUSFUND_ADMIN)
         notBlacklisted(_redemptionDataMap[redemptionId].user)
         whenNotPaused
     {
@@ -465,7 +466,7 @@ contract PlusFund is
         string memory offChainId
     )
         external
-        onlyRole(STOKEN_ADMIN)
+        onlyRole(PLUSFUND_ADMIN)
         notBlacklisted(user)
         zeroAddress(uAddress)
         zeroAddress(user)
@@ -520,7 +521,7 @@ contract PlusFund is
         uint256 subscriptionId
     )
         public
-        onlyRole(STOKEN_ADMIN)
+        onlyRole(PLUSFUND_ADMIN)
         notBlacklisted(_subscribeDataMap[subscriptionId].user)
         whenNotPaused
     {
@@ -668,7 +669,7 @@ contract PlusFund is
         uint256 redemptionId
     )
         public
-        onlyRole(STOKEN_ADMIN)
+        onlyRole(PLUSFUND_ADMIN)
         notBlacklisted(_redemptionDataMap[redemptionId].user)
         whenNotPaused
     {
@@ -969,7 +970,7 @@ contract PlusFund is
      * @notice Adds account to blacklist.
      * @param _account The address to blacklist.
      */
-    function blacklist(address _account) external onlyRole(STOKEN_ADMIN) {
+    function blacklist(address _account) external onlyRole(PLUSFUND_ADMIN) {
         _blacklist(_account);
         emit Blacklisted(_account);
     }
@@ -978,7 +979,7 @@ contract PlusFund is
      * @notice Removes account from blacklist.
      * @param _account The address to remove from the blacklist.
      */
-    function unBlacklist(address _account) external onlyRole(STOKEN_ADMIN) {
+    function unBlacklist(address _account) external onlyRole(PLUSFUND_ADMIN) {
         _unBlacklist(_account);
         emit UnBlacklisted(_account);
     }
@@ -1024,7 +1025,7 @@ contract PlusFund is
 
     function setTechnicalServiceFeeRate(
         uint256 newRate
-    ) public override onlyRole(STOKEN_ADMIN) {
+    ) public override onlyRole(PLUSFUND_ADMIN) {
         require(
             newRate >= 0 && newRate <= 10000,
             "Rate must be between 0 and 10000"
@@ -1052,13 +1053,13 @@ contract PlusFund is
 
     function addSupportedTokenAddress(
         address newAddress
-    ) public override onlyRole(STOKEN_ADMIN) {
+    ) public override onlyRole(PLUSFUND_ADMIN) {
         super.addSupportedTokenAddress(newAddress);
     }
 
     function removeSupportedTokenAddress(
         address token
-    ) public override onlyRole(STOKEN_ADMIN) {
+    ) public override onlyRole(PLUSFUND_ADMIN) {
         super.removeSupportedTokenAddress(token);
     }
 
@@ -1097,7 +1098,7 @@ contract PlusFund is
     // defult 100 USDT/USDC
     function setMinSubscriptionAmount(
         uint256 amount
-    ) public onlyRole(STOKEN_ADMIN) {
+    ) public onlyRole(PLUSFUND_ADMIN) {
         uint256 oldAmount = MIN_SUBSCRIPTION_USD_AMOUNT;
         MIN_SUBSCRIPTION_USD_AMOUNT = amount;
         emit minSubscriptionAmountUpdatedEvent(oldAmount, amount);
@@ -1106,13 +1107,13 @@ contract PlusFund is
     // defult 0.948 * 10 ** 18 Cash+
     function setMinRedemptionAmount(
         uint256 amount
-    ) public onlyRole(STOKEN_ADMIN) {
+    ) public onlyRole(PLUSFUND_ADMIN) {
         uint256 oldAmount = MIN_REDEMPTION_CASH_AMOUNT;
         MIN_REDEMPTION_CASH_AMOUNT = amount;
         emit minRedemptionAmountUpdatedEvent(oldAmount, amount);
     }
 
-    function setMaxQueueLength(uint256 newValue) public onlyRole(STOKEN_ADMIN) {
+    function setMaxQueueLength(uint256 newValue) public onlyRole(PLUSFUND_ADMIN) {
         require(newValue > 0, "Q>0");
         uint256 oldValue = maxQueueLength;
         maxQueueLength = newValue;

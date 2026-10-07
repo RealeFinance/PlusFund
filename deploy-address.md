@@ -13,7 +13,7 @@ Governance roles, Safe and Timelock addresses, deployment transactions and block
 - **Legacy / stoken1.0**: Uses the `_tokenList` and `_tokenMap` storage model. These deployments are not direct upgrade targets for the Wallet/mainline implementation.
 - **Wallet / main**: Uses the Wallet mapping family. Each proxy must be validated against its own upgrade path before an upgrade.
 
-The current `main` implementation reports version `2.1.2`. This registry does not assert the live implementation version of each proxy.
+The current `main` source reports version `2.1.3`. This registry does not assert the live implementation version of each proxy. The 2026-09-30 on-chain audit snapshot in the maintenance report compared proxies against `2.1.2`; that validation has not yet been repeated against `2.1.3`.
 
 ## Legacy structure / stoken1.0
 

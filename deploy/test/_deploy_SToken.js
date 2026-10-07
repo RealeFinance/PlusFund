@@ -34,7 +34,7 @@ async function main() {
       cancellers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可取消待执行提案的地址
     },
     // ===== 角色分配 =====
-    STOKEN_ADMIN: ["0x9Ac1862C0D5C1bf821cc6926EB2044D2b4D10b17"], // 日常运维地址（无延迟）
+    PLUSFUND_ADMIN: ["0x9Ac1862C0D5C1bf821cc6926EB2044D2b4D10b17"], // 日常运维地址（无延迟）
     // ===== 资产地址 =====
     assetRecipient: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
     assetSender: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
@@ -124,16 +124,17 @@ async function main() {
       console.log(`DEFAULT_ADMIN_ROLE权限已授予: ${admin}`);
     }
   }
-  for (const admin of data.STOKEN_ADMIN ?? []) {
-    console.log(`正在授权 STOKEN_ADMIN: ${admin}`);
-    const tx = await proxy2.grantRole(ethers.id("STOKEN_ADMIN"), admin);
+  const plusFundAdminRole = await proxy2.PLUSFUND_ADMIN();
+  for (const admin of data.PLUSFUND_ADMIN ?? []) {
+    console.log(`正在授权 PLUSFUND_ADMIN: ${admin}`);
+    const tx = await proxy2.grantRole(plusFundAdminRole, admin);
     await tx.wait();
-    console.log(`STOKEN_ADMIN权限已授予: ${admin}`);
+    console.log(`PLUSFUND_ADMIN权限已授予: ${admin}`);
   }
 
-  const tx = await proxy2.grantRole(ethers.id("STOKEN_ADMIN"), deployerAddress);
+  const tx = await proxy2.grantRole(plusFundAdminRole, deployerAddress);
   await tx.wait();
-  console.log(`STOKEN_ADMIN权限已授予: ${deployerAddress}`);
+  console.log(`PLUSFUND_ADMIN权限已授予: ${deployerAddress}`);
 
   const tx1 = await proxy2.setAssetRecipient(data.assetRecipient);
   await tx1.wait();
@@ -161,10 +162,10 @@ async function main() {
   );
 
   // ===== 部署者退出部分权限（DEFAULT_ADMIN_ROLE 单独处理） =====
-  // 先自动退出 STOKEN_ADMIN 和 STOKEN_BLACKLIST_ADMIN_ROLE
+  // 先自动退出 PLUSFUND_ADMIN 和 STOKEN_BLACKLIST_ADMIN_ROLE
   console.log(`开始撤销部署者权限...`);
   const rolesToRenounce = [
-    ethers.id("STOKEN_ADMIN"),
+    plusFundAdminRole,
     ethers.id("STOKEN_BLACKLIST_ADMIN_ROLE"),
   ];
   for (const role of rolesToRenounce) {
@@ -178,7 +179,7 @@ async function main() {
       console.log(`已无此角色，跳过: ${role}`);
     }
   }
-  console.log(`部署者 STOKEN_ADMIN 和 STOKEN_BLACKLIST_ADMIN_ROLE 已退出`);
+  console.log(`部署者 PLUSFUND_ADMIN 和 STOKEN_BLACKLIST_ADMIN_ROLE 已退出`);
 
   // ===== DEFAULT_ADMIN_ROLE 单独退出（可选执行） =====
   // 如果需要退出 DEFAULT_ADMIN_ROLE，取消下面的注释

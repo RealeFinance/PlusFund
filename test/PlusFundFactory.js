@@ -93,7 +93,7 @@ describe("PlusFundFactory", function () {
     );
 
     const defaultAdminRole = await token.DEFAULT_ADMIN_ROLE();
-    const stokenAdminRole = await token.STOKEN_ADMIN();
+    const stokenAdminRole = await token.PLUSFUND_ADMIN();
     const poolAdminRole = await token.POOL_ADMIN_ROLE();
     const blacklistAdminRole = await token.STOKEN_BLACKLIST_ADMIN_ROLE();
 

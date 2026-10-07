@@ -1,8 +1,8 @@
-# PlusFund 2.1.0 → 2.1.2 变更与升级说明
+# PlusFund 2.1.0 → 2.1.3 变更与升级说明
 
 整理日期：2026-10-01
 
-本文整理 PlusFund 从 `2.1.0` 到 `2.1.2` 的合约逻辑、部署治理和升级注意事项。
+本文整理 PlusFund 从 `2.1.0` 到 `2.1.3` 的合约逻辑、部署治理和升级注意事项。
 
 ## 1. 版本范围
 
@@ -13,8 +13,9 @@
 | `2.1.0` | `328cd99` | 2026-07-06 | PlusFund 初始版本 |
 | `2.1.1` | `785a30c` | 2026-08-13 | 修复链上赎回重复销毁风险 |
 | `2.1.2` | `7c49919` | 2026-08-18 | 隔离链上与线下业务入口 |
+| `2.1.3` | 当前工作区 | 2026-10-07 | 更新版本号；将业务角色标识和 getter 改名为 `PLUSFUND_ADMIN`，保留旧角色 ID |
 
-从 `2.1.0` 到 `2.1.2` 的变化不只有版本号更新，还包括若干中间提交中的合约、部署脚本、工厂和测试变更。
+从 `2.1.0` 到 `2.1.3` 的变化不只有版本号更新，还包括若干中间提交中的合约、部署脚本、工厂和测试变更。`2.1.3` 当前记录的是工作区变更，形成最终 commit 后应将“当前工作区”替换为对应 commit。
 
 ## 2. 变化总览
 
@@ -25,6 +26,7 @@
 - 修正 `transferFrom()` 的 allowance 扣减方式。
 - 防止链上赎回被 `burn()` 二次销毁。
 - 新增 `isOnChain`，严格区分链上和线下申购、赎回流程。
+- v2.1.3 将业务角色的 Solidity 标识改为 `PLUSFUND_ADMIN`，但保持原有角色 ID 不变。
 
 ### 2.2 部署和治理
 
@@ -32,6 +34,7 @@
 - 增加 CREATE2 地址预测、批量部署和产品 ID 去重。
 - 增加 UUPS implementation、治理地址和 Pool Admin 校验。
 - 部署完成后清理工厂自身的敏感权限。
+- 工厂和部署脚本使用新的 `PLUSFUND_ADMIN()` getter；旧 getter 不再提供。
 
 ### 2.3 升级风险
 
@@ -128,11 +131,21 @@
 - `burn()` 继续禁止处理链上赎回记录。
 - `version()` 更新为 `2.1.2`。
 
+### 3.4 v2.1.3：更新版本号和业务角色标识
+
+- `version()` 从 `2.1.2` 更新为 `2.1.3`。
+- 合约常量和公共 getter 从 `STOKEN_ADMIN` 改名为 `PLUSFUND_ADMIN`，权限检查也统一使用新标识。
+- 新常量值固定为 `0x1af9f09295e73130ad6fd58704a26fe468d3f3e194879e90badd83ab85dd89f9`，与旧实现的 `keccak256("STOKEN_ADMIN")` 相同。AccessControl 以 `bytes32` 角色 ID 保存成员，所以只要该值不变，已有地址授权无需迁移。
+- 常量不占用代理存储槽；本次角色改名没有拆分权限，也没有修复审计报告 N2 所指的权限集中问题。
+- `STOKEN_ADMIN()` getter 被移除，新增 `PLUSFUND_ADMIN()` getter。工厂接口、部署脚本和相关测试已同步改用新 getter。
+
+**兼容性注意：**仍调用旧 Token getter `STOKEN_ADMIN()` 的已部署工厂或外部集成，在升级后调用会失败。已部署的非代理工厂不会因本次源码更新自动改变；若它仍负责新 Token 部署，需要部署/切换到使用 `PLUSFUND_ADMIN()` 的新版工厂，或者继续保留旧 getter 兼容层。
+
 ## 4. 部署和治理变更
 
 ### 4.1 PlusFundFactory
 
-新增 [contracts/factory/PlusFundFactory.sol](./contracts/factory/PlusFundFactory.sol)，用于统一部署和配置产品实例。
+新增 [contracts/factory/PlusFundFactory.sol](../contracts/factory/PlusFundFactory.sol)，用于统一部署和配置产品实例。
 
 主要能力：
 
@@ -164,6 +177,8 @@
 ### 5.1 存储变更
 
 `isOnChain` 是追加到现有结构体中的字段，v2.1.1/v2.1.2 的 `isOnChain` 变更不要求调用新的 initializer 或 reinitializer。
+
+v2.1.3 只将角色常量和 getter 改名、保留角色 ID，并更新 `version()`；常量本身不改变代理存储布局。但仍须对每个目标代理用 v2.1.3 实现执行 `validateUpgrade`。2026-09-30 针对 v2.1.2 的 24/24 结果不能代替针对 v2.1.3 的逐代理校验。
 
 仍然必须对每个代理单独执行：
 
@@ -215,7 +230,9 @@ await upgrades.validateUpgrade(
 
 ### 升级后
 
-- [ ] `version()` 返回 `2.1.2`。
+- [ ] `version()` 返回 `2.1.3`。
+- [ ] `PLUSFUND_ADMIN()` 返回旧角色 ID `0x1af9f09295e73130ad6fd58704a26fe468d3f3e194879e90badd83ab85dd89f9`，并确认原授权地址仍有该角色。
+- [ ] 工厂和所有外部集成均不再依赖已移除的 `STOKEN_ADMIN()` getter；仍使用旧 getter 的线上工厂已替换或由实现保留兼容 getter。
 - [ ] 链上申购不能进入 `execute()`。
 - [ ] 线下申购不能进入 `claim()`。
 - [ ] 线下赎回不能进入 `claimUSD()`。
@@ -234,7 +251,13 @@ await upgrades.validateUpgrade(
 历史验证记录：
 
 - `npx hardhat compile`：通过；
-- `npx hardhat test test/PlusFundOnChainRedemption.js test/PlusFundFactory.js`：3 passing。
+- v2.1.2 历史运行：`npx hardhat test test/PlusFundOnChainRedemption.js test/PlusFundFactory.js`，3 passing。
+
+v2.1.3 本地验证：
+
+- `test/PlusFundAdminRoleUpgrade.js` 与 `test/PlusFundFactory.js`：10 passing；包括旧 getter 代理升级后角色授权仍在、旧 getter 移除、新工厂使用新 getter，以及 OpenZeppelin `validateUpgrade` 检查。
+- `test/PlusFundModeIsolation.js` 有一个申购流程以 `BelowMinAmount` 回退；该用例尚未通过。
+- 未对线上 RPC 或 24 个代理执行 v2.1.3 校验；升级前仍需逐代理验证实现、存储布局、权限和未完成业务状态。
 
 核心源码：
 
