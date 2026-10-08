@@ -155,7 +155,7 @@ Before upgrading an existing proxy:
 - Scan for unfinished subscriptions and redemptions.
 - Resolve historical on-chain records before upgrading to a version that relies on `isOnChain`; old records do not receive an automatic mode backfill.
 
-See [UPGRADE-v2.1.0-to-v2.1.3.md](./docs/UPGRADE-v2.1.0-to-v2.1.3.md) for the version-specific change log and checklist.
+See [PlusFund 产品版本更新说明](./docs/PlusFund-产品版本更新说明.md) for a product and user-facing summary. See [UPGRADE-v2.1.0-to-v2.1.3.md](./docs/UPGRADE-v2.1.0-to-v2.1.3.md) for the version-specific technical change log and upgrade checklist.
 
 ## Security and audit notes
 
