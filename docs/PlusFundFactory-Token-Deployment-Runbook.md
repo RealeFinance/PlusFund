@@ -196,7 +196,8 @@ assetRecipient / assetSender 配置正确
 - 确认 executor 配置符合预期。
 - 为 `assetSender` 配置稳定币余额和 Token allowance。
 - 如使用跨链功能，确认 `poolAdmin` 是已审核的白名单 TokenPool，且 `ccipAdmin` 已正确配置。
-- 记录 Token、Timelock 和 implementation 地址。
+- 记录 Token、Timelock 和 implementation 地址，并在 `deploy-address.md` 登记 implementation 的版本、网络、地址及浏览器验证链接。
+- 新部署 Token 时，记录 `TokenDeployed` 事件中的 implementation 地址；已部署 Token 升级后，读取并记录代理当前的 implementation 地址。在 `deploy-address.md` 的 proxy implementation snapshots 中登记代理与实现地址的对应关系，并注明核验区块或日期。
 
 ## 6. 版本升级规则
 
@@ -206,6 +207,7 @@ assetRecipient / assetSender 配置正确
 2. 完成测试、审计和验证。
 3. 由工厂管理员/多签调用 `setImplementation(newImplementation)`。
 4. 后续新创建的 Token 使用新版实现。
+5. 按链在 `deploy-address.md` 登记版本号、implementation 地址和浏览器验证链接；在 proxy implementation snapshots 中登记新 Token 的 `TokenDeployed` 事件实现地址，或将已升级 Token 更新为链上当前 implementation，并注明核验区块或日期。
 
 `setImplementation()` 不会升级已部署 Token。已部署 Token 需要通过各自的 Timelock 执行 UUPS 升级。
 
