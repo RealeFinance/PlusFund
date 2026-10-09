@@ -2,9 +2,9 @@ const { ethers, upgrades } = require("hardhat");
 
 async function main() {
   // ===== 你要改的参数 =====
-  const proxyAddress = "0x0D90a6eE85d5668734bb3A515147f53EBDfE866c";
-  const timelockAddress = "0x4013361546efe989Efd4a1242aDD5Ea88915e980";
-  const newImplementationAddress = "0xdc0838197aA0de07FB8218D22F691D3f5B23ca53";
+  const proxyAddress = "0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D";
+  const timelockAddress = "0xbfc85c81133D74519cc09Bf558D51D9628850E67";
+  const newImplementationAddress = "0xB52DED00A3E73AfBa495d31Bb6f38C6a5DD43B31";
   // 如果升级后要顺便执行 reinitializer，就打开下面两行
   const callInitializer = false;
   const initializerArgs = []; // 例如 [123, "abc"]
@@ -49,27 +49,35 @@ async function main() {
     timelockAddress,
   );
 
-  const cancelData = timelock.interface.encodeFunctionData(
-    "cancel",
-    ["0x3172fc05fc1de7cd465b46402980628ab944c3f60cbadac923f11ac9978f0eab"], // 新的费率值
+  const predecessor = ethers.ZeroHash;
+  const salt = ethers.ZeroHash;
+  const operationId = await timelock.hashOperation(
+    proxyAddress,
+    0,
+    upgradeCallData,
+    predecessor,
+    salt,
   );
+  const cancelData = timelock.interface.encodeFunctionData("cancel", [
+    operationId,
+  ]);
 
   // ② 再编码 timelock.schedule() 调用
   const scheduleData = timelock.interface.encodeFunctionData("schedule", [
     proxyAddress, // target
     0, // value（不带 ETH）
     upgradeCallData, // data → 实际要调用的方法
-    ethers.ZeroHash, // predecessor（无前置操作）
-    ethers.ZeroHash, // salt（随机数，避免重复）
-    120,
+    predecessor, // predecessor（无前置操作）
+    salt, // salt（随机数，避免重复）
+    172800,
   ]);
 
   const executeData = timelock.interface.encodeFunctionData("execute", [
     proxyAddress, // target
     0, // value（不带 ETH）
     upgradeCallData, // data → 实际要调用的方法
-    ethers.ZeroHash, // predecessor（无前置操作）
-    ethers.ZeroHash, // salt（随机数，避免重复）
+    predecessor, // predecessor（无前置操作）
+    salt, // salt（随机数，避免重复）
   ]);
 
   console.log("多签需要执行的交易:");
@@ -88,4 +96,4 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 
-// npx hardhat run .\deploy\test\encode-data-update-2.js --network bscTestnet
+// npx hardhat run .\deploy\test\encode-data-update-2.js --network bsc
