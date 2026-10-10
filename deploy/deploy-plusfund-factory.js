@@ -284,6 +284,20 @@ async function deployToken(factory, deployer, tokenConfig, salt) {
   const timelock = deployedEvent.args.timelock;
   const token = await ethers.getContractAt("PlusFund", proxy);
 
+  const expectedFundAccounts = {
+    assetRecipient: tokenConfig.assetRecipient,
+    assetSender: tokenConfig.assetSender,
+    serviceFeeRecipient: tokenConfig.serviceFeeRecipient,
+  };
+  for (const [getter, expected] of Object.entries(expectedFundAccounts)) {
+    const actual = await token[getter]();
+    if (actual.toLowerCase() !== expected.toLowerCase()) {
+      throw new Error(
+        `Post-deployment ${getter} verification failed: expected ${expected}, got ${actual}`,
+      );
+    }
+  }
+
   const defaultAdminRole = await token.DEFAULT_ADMIN_ROLE();
   const stokenAdminRole = await token.PLUSFUND_ADMIN();
   const poolAdminRole = await token.POOL_ADMIN_ROLE();
@@ -292,16 +306,25 @@ async function deployToken(factory, deployer, tokenConfig, salt) {
     stokenAdminRole,
     tokenConfig.stokenAdmin,
   );
+  const blacklistAdminGranted = tokenConfig.blacklistAdmin === ethers.ZeroAddress
+    ? true
+    : await token.hasRole(stokenAdminRole, tokenConfig.blacklistAdmin);
   const poolAdminGranted = tokenConfig.poolAdmin === ethers.ZeroAddress
     ? true
     : await token.hasRole(poolAdminRole, tokenConfig.poolAdmin);
 
-  if (!timelockAdmin || !stokenAdminGranted || !poolAdminGranted) {
+  if (
+    !timelockAdmin ||
+    !stokenAdminGranted ||
+    !blacklistAdminGranted ||
+    !poolAdminGranted
+  ) {
     throw new Error("Post-deployment role verification failed");
   }
 
   console.log(`Token proxy: ${proxy}`);
   console.log(`Token Timelock: ${timelock}`);
+  console.log("Post-deployment fund account verification: passed");
   console.log("Post-deployment role verification: passed");
 
   return {

@@ -15,6 +15,10 @@ describe("PlusFund on-chain redemption", function () {
     );
     await token.waitForDeployment();
 
+    await token.setAssetRecipient(owner.address);
+    await token.setAssetSender(owner.address);
+    await token.setServiceFeeRecipient(owner.address);
+
     const stokenAdmin = await token.PLUSFUND_ADMIN();
     const poolAdmin = await token.POOL_ADMIN_ROLE();
     await token.grantRole(stokenAdmin, admin.address);
@@ -101,17 +105,30 @@ describe("PlusFund on-chain redemption", function () {
       ethers.ZeroHash,
     );
     await token.connect(owner).setAssetSender(owner.address);
-    await token.connect(owner).setServiceFeeRecipient(owner.address);
+    await token.connect(owner).setServiceFeeRecipient(admin.address);
     await paymentToken.mint(owner.address, uAmount);
     await paymentToken
       .connect(owner)
       .approve(await token.getAddress(), uAmount);
 
-    await expect(token.connect(user).claimUSD(redemptionId)).to.emit(
-      token,
-      "claimUSDEvent",
-    );
+    const claimTx = await token.connect(user).claimUSD(redemptionId);
+    await expect(claimTx).to.emit(token, "claimUSDEvent");
+    const claimReceipt = await claimTx.wait();
+    const paymentTransfers = claimReceipt.logs
+      .map((log) => {
+        try {
+          return paymentToken.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .filter((parsed) => parsed?.name === "Transfer");
+
+    expect(paymentTransfers).to.have.length(1);
+    expect(paymentTransfers[0].args.to).to.equal(user.address);
+    expect(paymentTransfers[0].args.value).to.equal(uAmount);
     expect(await paymentToken.balanceOf(user.address)).to.equal(uAmount);
+    expect(await paymentToken.balanceOf(admin.address)).to.equal(0n);
   });
 
 });

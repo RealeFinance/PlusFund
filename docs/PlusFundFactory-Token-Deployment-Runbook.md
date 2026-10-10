@@ -64,7 +64,7 @@ const config = {
 
   stokenAdmin: "0x1111111111111111111111111111111111111111",       // 治理/业务 Safe
   poolAdmin: "0x2222222222222222222222222222222222222222",         // 已加入工厂白名单的 TokenPool，可为 0 地址
-  blacklistAdmin: "0x3333333333333333333333333333333333333333",   // 黑名单角色地址，可为 0 地址
+  blacklistAdmin: "0x3333333333333333333333333333333333333333",   // 可选；获授 PLUSFUND_ADMIN 全部权限（含黑名单）
   ccipAdmin: "0x4444444444444444444444444444444444444444",       // CCIP 管理员，可为 0 地址
 
   assetRecipient: "0x5555555555555555555555555555555555555555",  // 接收申购资金
@@ -103,7 +103,7 @@ const config = {
 | `symbol` | `"ERWA"` | ERC20 符号 |
 | `stokenAdmin` | Safe 地址 | 必须是合约地址，负责 Token 业务管理 |
 | `poolAdmin` | 已批准的 TokenPool 地址 | 跨链铸币/销毁权限；启用跨链时必须是工厂白名单中的合约地址，可为空 |
-| `blacklistAdmin` | 管理员地址 | 黑名单角色地址，可为空 |
+| `blacklistAdmin` | 管理员地址 | 可为空；非零时授予 `PLUSFUND_ADMIN`，可操作黑名单，也拥有该角色的其他业务管理权限 |
 | `ccipAdmin` | CCIP 管理员地址 | CCIP 配置权限，可为空 |
 | `assetRecipient` | 资金接收地址 | 申购资金接收方 |
 | `assetSender` | 资金发送地址 | 赎回时提供稳定币的一方 |
@@ -187,13 +187,14 @@ Token DEFAULT_ADMIN_ROLE = timelock
 Factory 不再拥有 Token DEFAULT_ADMIN_ROLE
 stokenAdmin 角色已授予目标治理地址
 supportedTokens 配置正确
-assetRecipient / assetSender 配置正确
+assetRecipient / assetSender / serviceFeeRecipient 均已设置为预期的外部多签地址，且链上读回值与部署配置一致
 ```
 
 ## 5. 部署后准备
 
 - 确认 Safe 拥有 Timelock 的 proposer/canceller 权限。
 - 确认 executor 配置符合预期。
+- 初始化时三个资金账户均为未配置状态；在地址核验通过前，不开放申购或赎回。
 - 为 `assetSender` 配置稳定币余额和 Token allowance。
 - 如使用跨链功能，确认 `poolAdmin` 是已审核的白名单 TokenPool，且 `ccipAdmin` 已正确配置。
 - 记录 Token、Timelock 和 implementation 地址。
@@ -243,4 +244,4 @@ node deploy/scan-token-redemptions.js
 
 - 工厂当前不是 Permissionless，普通用户需要先拥有 `DEPLOYER_ROLE`。
 - `address(0)` 作为 executor 会开放 Timelock 执行权限。
-- 当前 `blacklistAdmin` 角色配置与 PlusFund 实际 `blacklist()` 权限要求仍需保持一致后再作为正式合规流程使用。
+- `blacklistAdmin` 非零时与 `stokenAdmin` 一样获得完整 `PLUSFUND_ADMIN` 权限，并非黑名单专属权限；只有在接受这一权限范围时才配置该字段。

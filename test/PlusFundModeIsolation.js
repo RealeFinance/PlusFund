@@ -28,6 +28,10 @@ describe("PlusFund online/offline mode isolation", function () {
     );
     await token.waitForDeployment();
 
+    await token.setAssetRecipient(owner.address);
+    await token.setAssetSender(owner.address);
+    await token.setServiceFeeRecipient(owner.address);
+
     const stokenAdmin = await token.PLUSFUND_ADMIN();
     const poolAdmin = await token.POOL_ADMIN_ROLE();
     await token.grantRole(stokenAdmin, admin.address);
@@ -36,7 +40,7 @@ describe("PlusFund online/offline mode isolation", function () {
       .connect(admin)
       .addSupportedTokenAddress(await paymentToken.getAddress());
 
-    const subscriptionAmount = ethers.parseUnits("100", 6);
+    const subscriptionAmount = ethers.parseEther("100");
     await paymentToken.mint(user.address, subscriptionAmount * 2n);
     await paymentToken
       .connect(user)

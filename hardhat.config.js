@@ -50,7 +50,7 @@ module.exports = {
       // },
     },
     mainnet: {
-      url: `https://eth-mainnet.nodereal.io/v1/89eacc67043a4edbaaeff88424aff7fc`,
+      url: `https://eth-mainnet.nodereal.io/v1/${process.env.NODEREAL_ETH_MAINNET_API_KEY || ""}`,
       // url: `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 1,
@@ -110,7 +110,7 @@ module.exports = {
       timeout: 2000000,
     },
     sepolia: {
-      url: "https://eth-sepolia.g.alchemy.com/v2/N3C7u3FWjnZvKyop_yRKc",
+      url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_ETH_SEPOLIA_API_KEY || ""}`,
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 11155111,
       gasPrice: "auto",
@@ -131,7 +131,7 @@ module.exports = {
       timeout: 2000000,
     },
     PharosPrivateMainnet: {
-      url: "https://api.zan.top/node/v1/pharos/mainnet/905a1eaee8604174b374f376d2b7b082",
+      url: `https://api.zan.top/node/v1/pharos/mainnet/${process.env.ZAN_PHAROS_MAINNET_API_KEY || ""}`,
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 1672,
       gasPrice: "auto",
@@ -166,26 +166,18 @@ module.exports = {
   },
   // Etherscan验证配置
   etherscan: {
-    // apiKey: {
-    //   mainnet: process.env.ETHERSCAN_API_KEY,
-    //   testnet: process.env.ETHERSCAN_API_KEY,
-    //   "hashkey-chain-testnet": "empty",
-    //   // 其他网络API密钥
-    //   BNBtestnet: process.env.ETHERSCAN_API_KEY,
-    // },
+    // Explorer keys below are loaded from environment variables.
     apiKey: {
-      testnet: "empty",
-      "hashkey-chain-testnet": "empty",
-      // BNBtestnet: "NTY643JIUYT5WTX1DBGXEDJKRWMFNJ8Q42", //TJKUQ1AFRIVXV4ZCMBEQ1G95BW9A6SMEEA
-      bscTestnet: "NTY643JIUYT5WTX1DBGXEDJKRWMFNJ8Q42",
-      bsc: "TJKUQ1AFRIVXV4ZCMBEQ1G95BW9A6SMEEA",
-      avalancheFujiTestnet: "snowtrace",
-      avalanche: "Avalanche",
-      PharosPrivateMainnet: "empty",
-      PharosAtlanticTestnet: "empty",
-      // bscTestnet: "empty",
-      mainnet: "empty",
-      "arc-mainnet": "empty",
+      testnet: process.env.ETHERSCAN_API_KEY_TESTNET || "",
+      "hashkey-chain-testnet": process.env.ETHERSCAN_API_KEY_HASHKEY_CHAIN_TESTNET || "",
+      bscTestnet: process.env.ETHERSCAN_API_KEY_BSC_TESTNET || "",
+      bsc: process.env.ETHERSCAN_API_KEY_BSC || "",
+      avalancheFujiTestnet: process.env.ETHERSCAN_API_KEY_AVALANCHE_FUJI_TESTNET || "",
+      avalanche: process.env.ETHERSCAN_API_KEY_AVALANCHE || "",
+      PharosPrivateMainnet: process.env.ETHERSCAN_API_KEY_PHAROS_PRIVATE_MAINNET || "",
+      PharosAtlanticTestnet: process.env.ETHERSCAN_API_KEY_PHAROS_ATLANTIC_TESTNET || "",
+      mainnet: process.env.ETHERSCAN_API_KEY_MAINNET || "",
+      "arc-mainnet": process.env.ETHERSCAN_API_KEY_ARC_MAINNET || "",
     },
     // 自定义网络配置
     customChains: [

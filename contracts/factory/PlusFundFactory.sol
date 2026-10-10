@@ -260,7 +260,7 @@ contract PlusFundFactory is AccessControl {
             token.grantRole(token.POOL_ADMIN_ROLE(), config.poolAdmin);
         }
         if (config.blacklistAdmin != address(0)) {
-            token.grantRole(token.STOKEN_BLACKLIST_ADMIN_ROLE(), config.blacklistAdmin);
+            token.grantRole(stokenAdminRole, config.blacklistAdmin);
         }
 
         token.grantRole(defaultAdminRole, timelock);

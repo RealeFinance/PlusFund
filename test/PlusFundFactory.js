@@ -109,10 +109,17 @@ describe("PlusFundFactory", function () {
       false,
     );
     expect(await token.hasRole(stokenAdminRole, config.stokenAdmin)).to.equal(true);
-    expect(await token.hasRole(poolAdminRole, config.poolAdmin)).to.equal(true);
-    expect(await token.hasRole(blacklistAdminRole, config.blacklistAdmin)).to.equal(
+    expect(await token.hasRole(stokenAdminRole, config.blacklistAdmin)).to.equal(
       true,
     );
+    expect(await token.hasRole(poolAdminRole, config.poolAdmin)).to.equal(true);
+    expect(await token.hasRole(blacklistAdminRole, config.blacklistAdmin)).to.equal(
+      false,
+    );
+    await token.connect(signers[3]).blacklist(signers[9].address);
+    expect(await token.isBlacklisted(signers[9].address)).to.equal(true);
+    await token.connect(signers[3]).unBlacklist(signers[9].address);
+    expect(await token.isBlacklisted(signers[9].address)).to.equal(false);
     expect(
       await rawFactory.hasRole(
         await rawFactory.DEFAULT_ADMIN_ROLE(),

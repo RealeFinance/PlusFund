@@ -5,8 +5,8 @@ async function main() {
   const proxyAddress = "0x28d77ea7c61cd9055983ef8b0806778d8bb12c88";
   const contractName = "PlusFund";
   const useSafe = false; // 如果你是要在 Gnosis Safe 上执行升级，就设为 true，否则设为 false
-  // 如果升级后要顺便执行 reinitializer，就打开下面两行
-  const callInitializer = true;
+  // 默认不执行 reinitializer；逐代理确认尚未初始化且确实需要时再设为 true。
+  const callInitializer = false;
   const initializerArgs = []; // 例如 [123, "abc"]
   const data = {
     // ===== Timelock 配置 =====
@@ -37,16 +37,29 @@ async function main() {
 
   if (!useSafe) {
     // ===== 3) 直接在当前网络执行升级 =====
-    const proxy = await upgrades.upgradeProxy(proxyAddress, NewImplFactory, {
-      kind: "uups",
-      call: { fn: "initializeV2", args: [] },
-    });
+    const upgradeOptions = { kind: "uups" };
+    if (callInitializer) {
+      upgradeOptions.call = {
+        fn: "initializeV2",
+        args: initializerArgs,
+      };
+    }
+    const proxy = await upgrades.upgradeProxy(
+      proxyAddress,
+      NewImplFactory,
+      upgradeOptions,
+    );
     await proxy.waitForDeployment();
     const deploymentTx = proxy.deploymentTransaction();
     const blockNumber = deploymentTx?.blockNumber;
     const tokenAddress = await proxy.getAddress();
+    const currentMaxQueueLength = await proxy.maxQueueLength();
     console.log(`${contractName} Token 地址:`, tokenAddress);
-    console.log(`initializeV2 已执行，maxQueueLength = 100`);
+    console.log(
+      callInitializer
+        ? `initializeV2 已执行，maxQueueLength = ${currentMaxQueueLength}`
+        : `initializeV2 未执行，保留现有 maxQueueLength = ${currentMaxQueueLength}`,
+    );
     // ===== 部署 TimelockController =====
     if (data.timelock?.enabled) {
       console.log(`正在部署 TimelockController...`);

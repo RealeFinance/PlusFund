@@ -148,6 +148,21 @@ async function main() {
   await tx3.wait();
   console.log(`服务费接收地址已设置: ${data.serviceFeeRecipient}`);
 
+  const expectedFundAccounts = {
+    assetRecipient: data.assetRecipient,
+    assetSender: data.assetSender,
+    serviceFeeRecipient: data.serviceFeeRecipient,
+  };
+  for (const [getter, expected] of Object.entries(expectedFundAccounts)) {
+    const actual = await proxy2[getter]();
+    if (actual.toLowerCase() !== expected.toLowerCase()) {
+      throw new Error(
+        `资金账户核验失败 ${getter}: expected ${expected}, got ${actual}`,
+      );
+    }
+  }
+  console.log("三个资金账户读回核验通过");
+
   for (const address of data.supportedTokenAddresses ?? []) {
     console.log(`正在添加支持代币: ${address}`);
     const tx = await proxy2.addSupportedTokenAddress(address);

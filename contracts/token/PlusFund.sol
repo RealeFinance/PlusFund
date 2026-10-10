@@ -43,6 +43,9 @@ contract PlusFund is
 {
     using SafeERC20 for IERC20;
 
+    error FundAccountsNotConfigured();
+    error InvalidFundAccount();
+
     // ===== Roles ======
     bytes32 public constant PLUSFUND_ADMIN =
         0x1af9f09295e73130ad6fd58704a26fe468d3f3e194879e90badd83ab85dd89f9;
@@ -107,11 +110,11 @@ contract PlusFund is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(STOKEN_BLACKLIST_ADMIN_ROLE, msg.sender);
 
-        assetRecipient = address(this); // Set the asset recipient to this contract address
-        assetSender = address(this); // Set the asset sender to this contract address
-        serviceFeeRecipient = address(this); // Set the service fee recipient to this contract address
+        assetRecipient = address(0); // Must be configured before business operations
+        assetSender = address(0); // Must be an externally controlled treasury
+        serviceFeeRecipient = address(0); // Must be configured before business operations
 
-        technicalServiceFeeRate = 0; // Default technical service fee rate set to 0.1%
+        technicalServiceFeeRate = 0; // Default service fee rate; subscription fee calculations may use this setting.
 
         MIN_SUBSCRIPTION_USD_AMOUNT = 100; // Minimum subscription amount (100 USDT/USDC with 6 decimals)
         MIN_REDEMPTION_CASH_AMOUNT = 0.948 * 10 ** 18; // Minimum redemption amount (0.948 Cash+ with 18 decimals)
@@ -129,6 +132,17 @@ contract PlusFund is
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+
+    function _requireFundAccountsConfigured() internal view {
+        if (
+            assetRecipient == address(0) ||
+            assetSender == address(0) ||
+            serviceFeeRecipient == address(0) ||
+            assetRecipient == address(this) ||
+            assetSender == address(this) ||
+            serviceFeeRecipient == address(this)
+        ) revert FundAccountsNotConfigured();
+    }
 
     function pause() public onlyRole(PLUSFUND_ADMIN) {
         _pause();
@@ -178,6 +192,7 @@ contract PlusFund is
         checkUSDAmount(uAmount, IERC20Metadata(uAddress).decimals())
         whenNotPaused
     {
+        _requireFundAccountsConfigured();
         if (!containsAddress(uAddress)) {
             revert UnSupportedTokenAddress();
         }
@@ -353,6 +368,7 @@ contract PlusFund is
         checkCashAmount(stokenAmount)
         whenNotPaused
     {
+        _requireFundAccountsConfigured();
         if (!containsAddress(uAddress)) {
             revert UnSupportedTokenAddress();
         }
@@ -577,6 +593,7 @@ contract PlusFund is
     function claimUSD(
         uint256 redemptionId
     ) public notBlacklisted(msg.sender) whenNotPaused {
+        _requireFundAccountsConfigured();
         require(
             _redemptionDataMap[redemptionId].user == msg.sender,
             "Only redeemer"
@@ -590,50 +607,14 @@ contract PlusFund is
         require(wd.isOnChain, "Only on-chain redemption");
         delete _redemptionDataMap[redemptionId];
 
-        if (assetSender == serviceFeeRecipient) {
-            IERC20(wd.uAddress).safeTransferFrom(
-                assetSender,
-                wd.user,
-                wd.uAmount
-            );
-        } else {
-            // Convert wd.technicalServiceFee (18 decimals) to 6 decimals for subtraction
-            uint8 tokenDecimals = 18;
-            {
-                (bool ok, bytes memory data) = wd.uAddress.staticcall(
-                    abi.encodeWithSignature("decimals()")
-                );
-                if (ok && data.length >= 32) {
-                    tokenDecimals = abi.decode(data, (uint8));
-                }
-            }
-
-            uint256 feeuAddressDecimals;
-            if (tokenDecimals == 18) {
-                feeuAddressDecimals = wd.technicalServiceFee;
-            } else if (tokenDecimals < 18) {
-                feeuAddressDecimals =
-                    wd.technicalServiceFee /
-                    (10 ** (18 - tokenDecimals));
-            } else {
-                feeuAddressDecimals =
-                    wd.technicalServiceFee *
-                    (10 ** (tokenDecimals - 18));
-            }
-            require(wd.uAmount >= feeuAddressDecimals, "Fee exceeds amount");
-
-            IERC20(wd.uAddress).safeTransferFrom(
-                assetSender,
-                wd.user,
-                wd.uAmount - feeuAddressDecimals
-            ); // Transfer USDT/USDC from the asset sender to the user
-
-            IERC20(wd.uAddress).safeTransferFrom(
-                assetSender,
-                serviceFeeRecipient,
-                feeuAddressDecimals
-            ); // Transfer technical service fee to the service fee recipient
-        }
+        // Redemption service fees are no longer collected. Keep the legacy
+        // fee field for storage and event compatibility, but pay the full
+        // redemption amount to the user.
+        IERC20(wd.uAddress).safeTransferFrom(
+            assetSender,
+            wd.user,
+            wd.uAmount
+        );
 
         emit claimUSDEvent(
             redemptionId,
@@ -806,6 +787,10 @@ contract PlusFund is
     ) internal zeroAddress(from) zeroAddress(to) {
         // require(from != to, "Self xfer");
         // require(amount > 0, "Amount must be > 0");
+        if (amount == 0) {
+            emit Transfer(from, to, 0);
+            return;
+        }
         TokenTransferDetail[] memory _tt = _removeTokenByIdList(from, amount);
         _addTokenByIdList(to, _tt);
         emit Transfer(from, to, amount);
@@ -845,6 +830,7 @@ contract PlusFund is
         uint256 total;
         for (uint256 i = 0; i < tokenDatas.length; i++) {
             TokenData memory td = tokenDatas[i];
+            require(td.id != 0, "Invalid token ID");
             if (_tokenDataMap[td.id].id == 0) {
                 _tokenDataMap[td.id] = td;
             }
@@ -1036,18 +1022,21 @@ contract PlusFund is
     function setAssetRecipient(
         address newRecipient
     ) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (newRecipient == address(this)) revert InvalidFundAccount();
         super.setAssetRecipient(newRecipient);
     }
 
     function setAssetSender(
         address newSender
     ) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (newSender == address(this)) revert InvalidFundAccount();
         super.setAssetSender(newSender);
     }
 
     function setServiceFeeRecipient(
         address newRecipient
     ) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (newRecipient == address(this)) revert InvalidFundAccount();
         super.setServiceFeeRecipient(newRecipient);
     }
 
