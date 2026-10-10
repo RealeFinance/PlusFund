@@ -2,7 +2,7 @@ const { ethers, upgrades } = require("hardhat");
 
 async function main() {
   // ===== 你要改的参数 =====
-  const proxyAddress = "0x919A61d30370B1f527a4026d5402CA9901C91a4b";
+  const proxyAddress = "0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D";
   const contractName = "PlusFund";
 
   const hre = require("hardhat");
