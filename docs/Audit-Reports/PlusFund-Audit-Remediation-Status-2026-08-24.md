@@ -97,7 +97,7 @@ pendingCount == 0
 
 ### 3.4 Runbook 同步
 
-文件：`docs/PlusFundFactory-Token-Deployment-Runbook.md`
+文件：`docs/Runbook/PlusFundFactory-Token-Deployment-Runbook.md`
 
 已补充：
 

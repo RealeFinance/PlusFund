@@ -6,7 +6,7 @@ This file is the public deployment address book. It records deployed proxies, im
 
 - **Legacy / stoken1.0** uses the `_tokenList` and `_tokenMap` storage model. These deployments are not direct upgrade targets for the Wallet/mainline implementation.
 - **Wallet / main** uses the Wallet mapping family.
-- The current `main` source reports version `2.1.3`. Implementation/version cells for proxies are populated only after the current implementation is verified on-chain. A released implementation address alone does not mean existing proxies use that version.
+- The current `main` source reports version `2.1.4`. The implementation has not yet been recorded as deployed; existing implementation/version cells remain the last verified on-chain records. A released implementation address alone does not mean existing proxies use that version.
 - Record each future implementation release and each verified proxy-to-implementation association in the same table. For proxy rows, verify the implementation from the deployment event or current on-chain implementation slot; note the Timelock only when known.
 
 ## Deployment addresses

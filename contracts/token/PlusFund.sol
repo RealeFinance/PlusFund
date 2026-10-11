@@ -172,7 +172,7 @@ contract PlusFund is
     }
 
     function version() public pure returns (string memory) {
-        return "2.1.3";
+        return "2.1.4";
     }
 
     /**

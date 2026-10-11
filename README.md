@@ -80,9 +80,12 @@ contracts/
 
 deploy/                             # Deployment and operational scripts
 test/                               # Hardhat tests
-docs/                               # Deployment runbooks and audit notes
+docs/                               # Product docs and categorized technical documents
+├── UPGRADE/                        # Version changes and upgrade guidance
+├── Audit-Reports/                  # Audit reports and remediation status
+├── Runbook/                        # Operational runbooks
+└── PlusFund-产品版本更新说明.md
 deploy-address.md                   # Unified deployment address registry
-docs/UPGRADE-v2.1.0-to-v2.1.3.md   # Version changes and upgrade guidance
 ```
 
 ## Requirements
@@ -127,7 +130,7 @@ Before using a deployment script:
 3. Confirm the target network, implementation address, product ID, salt, roles, supported payment tokens, and Timelock configuration.
 4. Run the deployment from a clean, reviewed working tree and save the generated deployment manifest.
 
-The factory deployment flow is documented in [docs/PlusFundFactory-Token-Deployment-Runbook.md](./docs/PlusFundFactory-Token-Deployment-Runbook.md).
+The factory deployment flow is documented in [docs/Runbook/PlusFundFactory-Token-Deployment-Runbook.md](./docs/Runbook/PlusFundFactory-Token-Deployment-Runbook.md).
 
 ## Environment and deployment safety
 
@@ -155,15 +158,15 @@ Before upgrading an existing proxy:
 - Scan for unfinished subscriptions and redemptions.
 - Resolve historical on-chain records before upgrading to a version that relies on `isOnChain`; old records do not receive an automatic mode backfill.
 
-See [PlusFund 产品版本更新说明](./docs/PlusFund-产品版本更新说明.md) for a product and user-facing summary. See [UPGRADE-v2.1.0-to-v2.1.3.md](./docs/UPGRADE-v2.1.0-to-v2.1.3.md) for the version-specific technical change log and upgrade checklist.
+See [PlusFund 产品版本更新说明](./docs/PlusFund-产品版本更新说明.md) for a product and user-facing summary. See [UPGRADE-v2.1.0-to-v2.1.3.md](./docs/UPGRADE/UPGRADE-v2.1.0-to-v2.1.3.md) for the version-specific technical change log and upgrade checklist.
 
 ## Security and audit notes
 
 The repository includes audit and remediation notes, but they are documentation of the current project state and are not a guarantee of security. Review:
 
-- [Audit and remediation status](./docs/PlusFund-Audit-Remediation-Status-2026-08-24.md)
-- [NGI+ and PlusFund maintenance status](./docs/NGI+与PlusFund合约审计及版本维护现状.md)
-- [Deployment runbook](./docs/PlusFundFactory-Token-Deployment-Runbook.md)
+- [Audit and remediation status](./docs/Audit-Reports/PlusFund-Audit-Remediation-Status-2026-08-24.md)
+- [NGI+ and PlusFund maintenance status](./docs/Audit-Reports/NGI+与PlusFund合约审计及版本维护现状.md)
+- [Deployment runbook](./docs/Runbook/PlusFundFactory-Token-Deployment-Runbook.md)
 
 If you discover a security issue, avoid opening a public issue with exploitable details. Contact the project maintainers through the repository's configured security channel first.
 
