@@ -45,6 +45,13 @@ contract PlusFund is
 
     error FundAccountsNotConfigured();
     error InvalidFundAccount();
+    error InvalidUserAddress();
+    error InvalidPrice();
+    error InvalidRecordTime();
+    error InvalidAssetAmount();
+    error RedemptionNotFound();
+    error SubscriptionNotFound();
+    error DuplicateOfflineOrderId();
 
     // ===== Roles ======
     bytes32 public constant PLUSFUND_ADMIN =
@@ -91,6 +98,10 @@ contract PlusFund is
     address private _poolAdmin;
 
     uint256 public maxQueueLength; // 可配置的最大队列长度
+
+    // Only active off-chain IDs are tracked; completion releases the ID.
+    mapping(bytes32 => bool) private _activeOfflineOrderIds;
+    mapping(bytes32 => bytes32) private _offlineOrderKeys;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -172,7 +183,7 @@ contract PlusFund is
     }
 
     function version() public pure returns (string memory) {
-        return "2.1.4";
+        return "2.1.5";
     }
 
     /**
@@ -260,6 +271,7 @@ contract PlusFund is
             _subscribeDataMap[subscriptionId].isOnChain,
             "Only on-chain subscription"
         );
+        if (stokenAmount == 0) revert InvalidAssetAmount();
 
         SubscribeData storage sd = _subscribeDataMap[subscriptionId];
         sd.stokenAmount = stokenAmount;
@@ -307,6 +319,7 @@ contract PlusFund is
         checkUSDAmount(uAmount, IERC20Metadata(uAddress).decimals())
         whenNotPaused
     {
+        if (stokenAmount == 0) revert InvalidAssetAmount();
         if (!containsAddress(uAddress)) {
             revert UnSupportedTokenAddress();
         }
@@ -323,7 +336,13 @@ contract PlusFund is
                 )
             )
         );
+        bytes32 offlineOrderKey = _offlineOrderKey(offChainId, false);
+        if (_activeOfflineOrderIds[offlineOrderKey]) {
+            revert DuplicateOfflineOrderId();
+        }
         require(_subscribeDataMap[subscriptionId].id == 0, "Sub exists"); // Ensure the subscription ID does not already exist
+        _activeOfflineOrderIds[offlineOrderKey] = true;
+        _offlineOrderKeys[_offlineOrderReference(subscriptionId, false)] = offlineOrderKey;
         _subscribeDataMap[subscriptionId] = SubscribeData({
             id: subscriptionId,
             uAmount: uAmount,
@@ -505,9 +524,15 @@ contract PlusFund is
                 )
             )
         );
+        bytes32 offlineOrderKey = _offlineOrderKey(offChainId, true);
+        if (_activeOfflineOrderIds[offlineOrderKey]) {
+            revert DuplicateOfflineOrderId();
+        }
 
         RedemptionData storage wd = _redemptionDataMap[redemptionId];
         require(wd.id == 0, "Redemption exists"); // Ensure the redemption ID does not already exist
+        _activeOfflineOrderIds[offlineOrderKey] = true;
+        _offlineOrderKeys[_offlineOrderReference(redemptionId, true)] = offlineOrderKey;
         wd.id = redemptionId;
         wd.uAmount = uAmount;
         wd.uAddress = uAddress;
@@ -559,6 +584,10 @@ contract PlusFund is
             sd.source,
             tokenId
         ); // Emit event for execution
+        bytes32 orderReference = _offlineOrderReference(subscriptionId, false);
+        bytes32 offlineOrderKey = _offlineOrderKeys[orderReference];
+        delete _offlineOrderKeys[orderReference];
+        _releaseOfflineOrderId(offlineOrderKey);
         delete _subscribeDataMap[subscriptionId];
     }
 
@@ -599,11 +628,11 @@ contract PlusFund is
             "Only redeemer"
         );
         RedemptionData memory wd = _redemptionDataMap[redemptionId];
-        require(wd.id != 0, "No redemption");
-        require(wd.user != address(0), "Invalid user address");
-        require(wd.price > 0, "Invalid price");
-        require(wd.time > 0, "Invalid time");
-        require(wd.uAmount > 0, "Invalid USDT amount");
+        if (wd.id == 0) revert RedemptionNotFound();
+        if (wd.user == address(0)) revert InvalidUserAddress();
+        if (wd.price == 0) revert InvalidPrice();
+        if (wd.time == 0) revert InvalidRecordTime();
+        if (wd.uAmount == 0) revert InvalidAssetAmount();
         require(wd.isOnChain, "Only on-chain redemption");
         delete _redemptionDataMap[redemptionId];
 
@@ -636,10 +665,11 @@ contract PlusFund is
     // It then adds new token data and updates the user's token list and map.
     function _mintStoken(uint256 subscriptionId) internal returns (uint256) {
         SubscribeData storage sub = _subscribeDataMap[subscriptionId];
-        require(sub.id != 0, "No subscription");
-        require(sub.user != address(0), "Invalid user address");
-        require(sub.price > 0, "Invalid price");
-        require(sub.time > 0, "Invalid time");
+        if (sub.id == 0) revert SubscriptionNotFound();
+        if (sub.stokenAmount == 0) revert InvalidAssetAmount();
+        if (sub.user == address(0)) revert InvalidUserAddress();
+        if (sub.price == 0) revert InvalidPrice();
+        if (sub.time == 0) revert InvalidRecordTime();
         uint256 tokenId = _addNewTokenData(sub.user, sub.stokenAmount);
         return tokenId;
     }
@@ -656,17 +686,17 @@ contract PlusFund is
     {
         require(redemptionId != 0, "Invalid redemption ID");
         RedemptionData storage wd = _redemptionDataMap[redemptionId];
-        require(wd.id != 0, "No redemption");
+        if (wd.id == 0) revert RedemptionNotFound();
         // tokenTransferDetails is populated by _burn, so this also protects
         // on-chain redemptions created before isOnChain was introduced.
         require(
             !wd.isOnChain && wd.tokenTransferDetails.length == 0,
             "Cannot burn on-chain redemption"
         );
-        require(wd.user != address(0), "Invalid user address");
-        require(wd.price > 0, "Invalid price");
-        require(wd.time > 0, "Invalid time");
-        require(wd.uAmount > 0, "Invalid USDT amount");
+        if (wd.user == address(0)) revert InvalidUserAddress();
+        if (wd.price == 0) revert InvalidPrice();
+        if (wd.time == 0) revert InvalidRecordTime();
+        if (wd.uAmount == 0) revert InvalidAssetAmount();
         _burn(redemptionId); // Burn the stoken amount for the user
 
         emit burnEvent(
@@ -682,13 +712,37 @@ contract PlusFund is
             wd.technicalServiceFee,
             wd.tokenTransferDetails
         ); // Emit event for burn
+        bytes32 orderReference = _offlineOrderReference(redemptionId, true);
+        bytes32 offlineOrderKey = _offlineOrderKeys[orderReference];
+        delete _offlineOrderKeys[orderReference];
+        _releaseOfflineOrderId(offlineOrderKey);
         delete _redemptionDataMap[redemptionId]; // Clear the redemption data after burning
+    }
+
+    function _offlineOrderKey(
+        string memory offChainId,
+        bool isRedemption
+    ) private pure returns (bytes32) {
+        return keccak256(
+            abi.encodePacked(isRedemption, keccak256(bytes(offChainId)))
+        );
+    }
+
+    function _offlineOrderReference(
+        uint256 orderId,
+        bool isRedemption
+    ) private pure returns (bytes32) {
+        return keccak256(abi.encodePacked(isRedemption, orderId));
+    }
+
+    function _releaseOfflineOrderId(bytes32 offlineOrderKey) private {
+        if (offlineOrderKey != bytes32(0)) {
+            delete _activeOfflineOrderIds[offlineOrderKey];
+        }
     }
 
     function _burn(uint256 redemptionId) internal {
         RedemptionData storage wd = _redemptionDataMap[redemptionId];
-        require(wd.id != 0, "No redemption");
-
         TokenTransferDetail[] memory _tt = _removeTokenByIdList(
             wd.user,
             wd.stokenAmount

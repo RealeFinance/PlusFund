@@ -118,6 +118,82 @@ describe("PlusFund online/offline mode isolation", function () {
     await expect(token.connect(user).claim(onlineId)).not.to.be.reverted;
   });
 
+  it("rejects zero-share offline subscriptions and on-chain subscription overwrites", async function () {
+    const { user, admin, token, paymentToken, subscriptionAmount } =
+      await deployFixture();
+
+    await expect(
+      token.connect(admin).subscribe(
+        subscriptionAmount,
+        await paymentToken.getAddress(),
+        0,
+        user.address,
+        ethers.parseEther("1"),
+        1n,
+        ethers.ZeroHash,
+        "zero-share-offline",
+      ),
+    ).to.be.revertedWithCustomError(token, "InvalidAssetAmount");
+
+    const onlineTx = await token
+      .connect(user)
+      .onChainSubscribe(
+        await paymentToken.getAddress(),
+        subscriptionAmount,
+        0,
+      );
+    const onlineReceipt = await onlineTx.wait();
+    const onlineEvent = findEvent(
+      onlineReceipt,
+      token.interface,
+      "onChainSubscribeEvent",
+    );
+
+    await expect(
+      token.connect(admin).overwriteOnChainSubscribe(
+        onlineEvent.args.subscriptionId,
+        ethers.parseEther("1"),
+        0,
+        1n,
+        ethers.ZeroHash,
+        "zero-share-online",
+      ),
+    ).to.be.revertedWithCustomError(token, "InvalidAssetAmount");
+  });
+
+  it("prevents duplicate active subscription offChainIds and releases them after execution", async function () {
+    const { user, admin, token, paymentToken, subscriptionAmount } =
+      await deployFixture();
+    const paymentTokenAddress = await paymentToken.getAddress();
+    const createOfflineSubscription = (amount, offChainId) =>
+      token.connect(admin).subscribe(
+        amount,
+        paymentTokenAddress,
+        ethers.parseEther("1"),
+        user.address,
+        ethers.parseEther("1"),
+        1n,
+        ethers.ZeroHash,
+        offChainId,
+      );
+
+    const firstTx = await createOfflineSubscription(
+      subscriptionAmount,
+      "duplicate-subscription-id",
+    );
+    const firstReceipt = await firstTx.wait();
+    const firstEvent = findEvent(firstReceipt, token.interface, "subscribeEvent");
+
+    await expect(
+      createOfflineSubscription(subscriptionAmount + 1n, "duplicate-subscription-id"),
+    ).to.be.revertedWithCustomError(token, "DuplicateOfflineOrderId");
+
+    await token.connect(admin).execute(firstEvent.args.subscriptionId);
+    await expect(
+      createOfflineSubscription(subscriptionAmount + 1n, "duplicate-subscription-id"),
+    ).not.to.be.reverted;
+  });
+
   it("does not allow an offline redemption to use the online overwrite path", async function () {
     const { user, admin, token, paymentToken } = await deployFixture();
     const stokenAmount = ethers.parseEther("1");
@@ -158,5 +234,57 @@ describe("PlusFund online/offline mode isolation", function () {
     ).to.be.revertedWith("Only on-chain redemption");
 
     await expect(token.connect(admin).burn(redemptionId)).not.to.be.reverted;
+  });
+
+  it("prevents duplicate active redemption offChainIds and releases them after burn", async function () {
+    const { user, admin, token, paymentToken } = await deployFixture();
+    const paymentTokenAddress = await paymentToken.getAddress();
+    const stokenAmount = ethers.parseEther("1");
+    await token.connect(admin).mint(
+      user.address,
+      stokenAmount * 2n,
+      [
+        [1n, user.address, 31337n],
+        [2n, user.address, 31337n],
+      ],
+      [stokenAmount, stokenAmount],
+    );
+
+    const createOfflineRedemption = (amount, offChainId) =>
+      token.connect(admin).redemption(
+        amount,
+        paymentTokenAddress,
+        stokenAmount,
+        user.address,
+        ethers.parseEther("1"),
+        1n,
+        ethers.ZeroHash,
+        offChainId,
+      );
+    const firstTx = await createOfflineRedemption(
+      ethers.parseUnits("100", 6),
+      "duplicate-redemption-id",
+    );
+    const firstReceipt = await firstTx.wait();
+    const firstEvent = findEvent(
+      firstReceipt,
+      token.interface,
+      "RedemptionEvent",
+    );
+
+    await expect(
+      createOfflineRedemption(
+        ethers.parseUnits("101", 6),
+        "duplicate-redemption-id",
+      ),
+    ).to.be.revertedWithCustomError(token, "DuplicateOfflineOrderId");
+
+    await token.connect(admin).burn(firstEvent.args.redemptionId);
+    await expect(
+      createOfflineRedemption(
+        ethers.parseUnits("101", 6),
+        "duplicate-redemption-id",
+      ),
+    ).not.to.be.reverted;
   });
 });

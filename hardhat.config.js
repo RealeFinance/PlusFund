@@ -25,18 +25,31 @@ require("dotenv").config();
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.22",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 100,
+    compilers: [
+      {
+        version: "0.8.22",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 100,
+          },
+          viaIR: true,
+        },
       },
-      viaIR: true,
-    },
-    remappings: [
-      "@openzeppelin/=node_modules/@openzeppelin/",
-      "@chainlink/=node_modules/@chainlink/",
     ],
+    overrides: {
+      // PlusFund was 14 bytes above EIP-170 at runs=100; keep the size override scoped to this implementation.
+      "contracts/token/PlusFund.sol": {
+        version: "0.8.22",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1,
+          },
+          viaIR: true,
+        },
+      },
+    },
   },
 
   // 网络配置

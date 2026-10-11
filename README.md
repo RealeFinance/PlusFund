@@ -2,7 +2,7 @@
 
 PlusFund is an upgradeable Solidity token infrastructure for RWA products that need subscription, redemption, token provenance, and role-based operational control across multiple EVM networks.
 
-The current mainline implementation is `PlusFund.version() = 2.1.3`.
+The current mainline source reports `PlusFund.version() = 2.1.5`. This does not imply that deployed proxies have been upgraded.
 
 Repository: [github.com/RealeFinance/PlusFund](https://github.com/RealeFinance/PlusFund)
 
@@ -158,7 +158,7 @@ Before upgrading an existing proxy:
 - Scan for unfinished subscriptions and redemptions.
 - Resolve historical on-chain records before upgrading to a version that relies on `isOnChain`; old records do not receive an automatic mode backfill.
 
-See [PlusFund 产品版本更新说明](./docs/PlusFund-产品版本更新说明.md) for a product and user-facing summary. See [UPGRADE-v2.1.0-to-v2.1.3.md](./docs/UPGRADE/UPGRADE-v2.1.0-to-v2.1.3.md) for the version-specific technical change log and upgrade checklist.
+See [PlusFund 产品版本更新说明](./docs/PlusFund-产品版本更新说明.md) for a product and user-facing summary. See [UPGRADE-v2.1.4-to-v2.1.5.md](./docs/UPGRADE/UPGRADE-v2.1.4-to-v2.1.5.md) for the latest technical change log and upgrade checklist.
 
 ## Security and audit notes
 
