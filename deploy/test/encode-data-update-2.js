@@ -25,10 +25,11 @@ async function main() {
 
   let upgradeCallData;
   if (callInitializer) {
-    // 假设你的 V2 里有：
-    // function initializeV2(uint256 x, string memory y) reinitializer(2)
-    const implInterface = NewImplFactory.interface;
-    const initData = implInterface.encodeFunctionData(
+    const implementation = await ethers.getContractAt(
+      "PlusFund",
+      newImplementationAddress,
+    );
+    const initData = implementation.interface.encodeFunctionData(
       "initializeV2",
       initializerArgs,
     );
