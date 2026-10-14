@@ -59,3 +59,12 @@ This file is the public deployment address book. It records deployed proxies, im
 | GFCASH+ 3.0 | Ethereum mainnet | Wallet / main | [`0x46c8055eD9D3c7DF3f515EE6Cd4a5b8616156719`](https://etherscan.io/address/0x46c8055eD9D3c7DF3f515EE6Cd4a5b8616156719) | — | — |
 | TKCASH+ 3.0 | Ethereum mainnet | Wallet / main | [`0x257c71ecDB944EC09780c97e874ED41e98E00913`](https://etherscan.io/address/0x257c71ecDB944EC09780c97e874ED41e98E00913) | — | — |
 
+
+
+
+
+v2 hashkey-test
+PlusFund implementation: 0x138411eC25ACE602E4F7a7Ec0a795ee5492fFbD7
+PlusFundFactory: 0x465b6382DC3Bf7ec3E9DC8740ea467787e98C9dE
+Factory admin: 0xD8134c93C796F5905e520C274fAD7Da53e7bE0a5
+Factory operator: 0xc586CA1D8a5c5A26941749d283395a148a56bf55

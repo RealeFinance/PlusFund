@@ -1,0 +1,13 @@
+{
+  "network": "testnet",
+  "chainId": "133",
+  "deployer": "0x26C45A34dc80cc7BcfC153e27688fB1bb8213C30",
+  "implementation": "0x138411eC25ACE602E4F7a7Ec0a795ee5492fFbD7",
+  "factory": {
+    "address": "0x465b6382DC3Bf7ec3E9DC8740ea467787e98C9dE",
+    "deployed": true,
+    "factoryAdminSafe": "0xD8134c93C796F5905e520C274fAD7Da53e7bE0a5",
+    "operatorAddress": "0xc586CA1D8a5c5A26941749d283395a148a56bf55",
+    "deploymentTransaction": "0xe11eb18c4caba6a8afbc885a0ce769a8b33fba74beb196dda8f4a0c17669779e"
+  }
+}

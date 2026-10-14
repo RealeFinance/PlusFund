@@ -198,17 +198,16 @@ module.exports = {
         network: "testnet",
         chainId: 133,
         urls: {
-          apiUrl:
-            "https://hashkeychain-testnet-explorer.alt.technology/api/v1/graphql",
-          browserUrl: "https://hashkeychain-testnet-explorer.alt.technology/",
+          apiURL: "https://testnet-explorer.hskchain.net/api",
+          browserURL: "https://testnet-explorer.hskchain.net",
         },
       },
       {
         network: "hashkey-chain-testnet",
         chainId: 133,
         urls: {
-          apiURL: "https://testnet-explorer.hsk.xyz/api",
-          browserURL: "https://testnet-explorer.hsk.xyz",
+          apiURL: "https://testnet-explorer.hskchain.net/api",
+          browserURL: "https://testnet-explorer.hskchain.net",
         },
       },
       {
