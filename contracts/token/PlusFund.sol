@@ -319,6 +319,8 @@ contract PlusFund is
         checkUSDAmount(uAmount, IERC20Metadata(uAddress).decimals())
         whenNotPaused
     {
+        if (price == 0) revert InvalidPrice();
+        if (time == 0) revert InvalidRecordTime();
         if (stokenAmount == 0) revert InvalidAssetAmount();
         if (!containsAddress(uAddress)) {
             revert UnSupportedTokenAddress();
@@ -508,6 +510,9 @@ contract PlusFund is
         checkCashAmount(stokenAmount)
         whenNotPaused
     {
+        if (uAmount == 0) revert InvalidAssetAmount();
+        if (price == 0) revert InvalidPrice();
+        if (time == 0) revert InvalidRecordTime();
         if (!containsAddress(uAddress)) {
             revert UnSupportedTokenAddress();
         }
