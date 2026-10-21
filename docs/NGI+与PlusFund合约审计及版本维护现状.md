@@ -2,11 +2,13 @@
 
 > 资料快照：2026-09-30。本文整理当前已核对的审计报告、本地代码分支和部署地址登记；不是链上实时核验结果，也不替代正式安全审计。
 
+> 后续更新（2026-10-21）：`feature/stoken1.0` 当前源码版本标识更新为 `3.1.1-stoken1.0`，并保留 `VERSION()` getter、增加 `version()` getter。升级说明见 [`UPGRADE-v3.1.0-to-v3.1.1-stoken1.0.md`](UPGRADE/UPGRADE-v3.1.0-to-v3.1.1-stoken1.0.md)。此为源码版本标识，不代表线上代理已升级或已做本次版本的链上核验。
+
 ## 一页结论
 
 - 产品名称相近不代表合约代码相同。目前至少要按两种存储结构、两条维护线管理：`main` 的 `Wallet` 队列结构，以及 `feature/stoken1.0` 的 `_tokenList + _tokenMap` 数组/映射结构。
 - 新结构部署归入 `main` 维护线。仓库 `main` 中 PlusFund 合约版本为 `2.1.2`；同一结构原则上可以沿该线升级，但每个代理仍须单独做 OpenZeppelin 存储布局校验、初始化/角色检查、Timelock 与待处理申赎检查。
-- 旧结构部署归入 `stoken1.0` 维护线，不应直接升级到 `main` 的 `Wallet` 存储结构。旧线当前合约标识为 `VERSION_3.1.0`；该编号与 `main` 的 `2.1.2` 属于不同代码线，不能按数字大小比较新旧。
+- 旧结构部署归入 `stoken1.0` 维护线，不应直接升级到 `main` 的 `Wallet` 存储结构。资料快照时旧线合约标识为 `VERSION_3.1.0`；该编号与 `main` 的 `2.1.2` 属于不同代码线，不能按数字大小比较新旧。
 - 用户提供的 SlowMist NGI+ 报告审计基线不是当前本地 PlusFund 仓库的 commit。它不能直接证明 `main`、`stoken1.0` 或线上代理当前实现均已审计。
 - 若目标是“一份审计覆盖同系列产品”，应先以同一源代码、编译参数和依赖生成的实现字节码为边界。两个存储结构必须在审计范围中明确列为两个实现/两个目标；代理部署配置另做逐地址核验。
 
@@ -15,7 +17,7 @@
 | 维护线 | 结构特征 | 当前仓库基线 | 升级策略 |
 | --- | --- | --- | --- |
 | `main` 新结构 | `mapping(address => Wallet) public wallets`，Wallet 内以 head/tail 索引管理 TokenEntry 队列 | PlusFund `version() = "2.1.2"`；当前 `main` 分支 HEAD 为 `daa0357`（2026-09-26，最新部署工具提交；合约版本仍为 2.1.2） | 在同一 Wallet 存储家族内维护升级；每个代理升级前必须独立验证存储兼容、初始化状态、权限与链上业务状态。 |
-| `feature/stoken1.0` 旧结构 | `_tokenList` 与 `_tokenMap`，按用户维护 Token ID 数组及余额映射 | `VERSION = keccak256("VERSION_3.1.0")`；当前分支 HEAD 为 `5773008`（2026-07-26） | 旧结构问题与改进留在 `stoken1.0` 线维护；不能把 `Wallet` 实现直接作为旧代理的升级目标。 |
+| `feature/stoken1.0` 旧结构 | `_tokenList` 与 `_tokenMap`，按用户维护 Token ID 数组及余额映射 | 资料快照时 `VERSION = keccak256("VERSION_3.1.0")`；当时分支 HEAD 为 `5773008`（2026-07-26） | 旧结构问题与改进留在 `stoken1.0` 线维护；不能把 `Wallet` 实现直接作为旧代理的升级目标。 |
 
 ### 当前地址簿中的产品归类
 

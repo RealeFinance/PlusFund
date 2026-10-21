@@ -42,7 +42,7 @@ contract PlusFund is
     Blacklistable
 {
     using SafeERC20 for IERC20;
-    bytes32 public constant VERSION = keccak256("VERSION_3.1.0");
+    bytes32 public constant VERSION = keccak256("VERSION_3.1.1-STOKEN1.0");
     bytes32 public constant STOKEN_ADMIN = keccak256("STOKEN_ADMIN");
 
     // subscriptionId => SubscribeData
@@ -74,6 +74,10 @@ contract PlusFund is
     bytes32 public constant POOL_ADMIN_ROLE = keccak256("POOL_ADMIN_ROLE");
 
     uint256 public maxQueueLength;
+
+    function version() public pure returns (string memory) {
+        return "3.1.1-stoken1.0";
+    }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -805,6 +809,10 @@ contract PlusFund is
     ) internal zeroAddress(from) zeroAddress(to) {
         // require(from != to, "Cannot transfer to self");
         // require(amount > 0, "Amount must be > 0");
+        if (amount == 0) {
+            emit Transfer(from, to, 0);
+            return;
+        }
         TokenTransferDetail[] memory _tt = _removeTokenByIdList(from, amount);
         _addTokenByIdList(to, _tt);
         emit Transfer(from, to, amount);
