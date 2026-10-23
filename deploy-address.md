@@ -1,27 +1,38 @@
 # Public deployment registry
 
-This file is the public deployment address book. It records deployed proxies, implementation releases, and known Timelock associations in one table. Safe addresses, deployment transactions and blocks, supported-token parameters, and operational notes remain in the private deployment registry.
+This file is the public deployment address book. It records deployed proxies, implementation releases, and known Timelock associations in separate testnet and mainnet tables. Safe addresses, deployment transactions and blocks, supported-token parameters, and operational notes remain in the private deployment registry.
 
 ## Structure and version notes
 
 - **Legacy / stoken1.0** uses the `_tokenList` and `_tokenMap` storage model. These deployments are not direct upgrade targets for the Wallet/mainline implementation.
 - **Wallet / main** uses the Wallet mapping family.
 - The current `main` source reports version `2.1.5`. The implementation has not yet been recorded as deployed; existing implementation/version cells remain the last verified on-chain records. A released implementation address alone does not mean existing proxies use that version.
-- Record each future implementation release and each verified proxy-to-implementation association in the same table. For proxy rows, verify the implementation from the deployment event or current on-chain implementation slot; note the Timelock only when known.
+- Record each future implementation release and each verified proxy-to-implementation association in the appropriate network table. For proxy rows, verify the implementation from the deployment event or current on-chain implementation slot; note the Timelock only when known.
 
 ## Deployment addresses
 
-| Product | Network | Structure | Proxy address | Implementation (version/address) | Timelock |
+## Testnet deployments
+
+| Product | Network | Structure | Proxy / factory | Implementation (version/address) | Timelock / admin / operator |
+| --- | --- | --- | --- | --- | --- |
+| Cash+ | HashKey testnet | Legacy / stoken1.0 | `0x40fc7a4Dfcade4021946f028f6fCf43666110847` | — | — |
+| Cash+ | BSC testnet | Legacy / stoken1.0 | [`0x4013361546efe989Efd4a1242aDD5Ea88915e980`](https://testnet.bscscan.com/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980) | — | — |
+| Cash+ | Ethereum Sepolia | Legacy / stoken1.0 | [`0x734bb43B503Ea50EBE58EB371e34263551cc3d28`](https://sepolia.etherscan.io/address/0x734bb43B503Ea50EBE58EB371e34263551cc3d28) | — | — |
+| Cash+ | Avalanche Fuji testnet | Legacy / stoken1.0 | `0x0D90a6eE85d5668734bb3A515147f53EBDfE866c` | — | — |
+| Cash+ 2.0 | BSC testnet | Wallet / main | [`0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2`](https://testnet.bscscan.com/address/0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2) | — | — |
+| Cash+ 2.0 | Ethereum Sepolia | Wallet / main | [`0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138`](https://sepolia.etherscan.io/address/0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138) | — | — |
+| Cash+ 2.0 | Pharos Atlantic testnet | Wallet / main | [`0x4013361546efe989Efd4a1242aDD5Ea88915e980`](https://atlantic.pharos.io/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980) | — | — |
+| PlusFund v2 | HashKey testnet | Wallet / main | Factory: `0x465b6382DC3Bf7ec3E9DC8740ea467787e98C9dE` | Implementation: `0x138411eC25ACE602E4F7a7Ec0a795ee5492fFbD7` | Factory admin: `0xD8134c93C796F5905e520C274fAD7Da53e7bE0a5`; Factory operator: `0xc586CA1D8a5c5A26941749d283395a148a56bf55` |
+
+## Mainnet deployments
+
+| Product | Network | Structure | Proxy / factory | Implementation (version/address) | Timelock / admin / operator |
 | --- | --- | --- | --- | --- | --- |
 | PlusFund implementation | BSC mainnet | Wallet / main | — | 2.1.3: [`0x69e75600235F031449490E1A567EF74835339Ce1`](https://bscscan.com/address/0x69e75600235F031449490E1A567EF74835339Ce1) | — |
 | PlusFund implementation | Ethereum mainnet | Wallet / main | — | 2.1.3: [`0xD8E75f2DFFb3F708E2326b0a256818375fa3920a`](https://etherscan.io/address/0xD8E75f2DFFb3F708E2326b0a256818375fa3920a) | — |
 | PlusFund implementation | ARC | Wallet / main | — | 2.1.3 verified: `0xdc0838197aA0de07FB8218D22F691D3f5B23ca53` | — |
-| Cash+ | HashKey testnet | Legacy / stoken1.0 | `0x40fc7a4Dfcade4021946f028f6fCf43666110847` | — | — |
-| Cash+ | BSC testnet | Legacy / stoken1.0 | [`0x4013361546efe989Efd4a1242aDD5Ea88915e980`](https://testnet.bscscan.com/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980) | — | — |
 | Cash+ | BSC mainnet | Legacy / stoken1.0 | [`0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc`](https://bscscan.com/address/0x1775504c5873e179Ea2f8ABFcE3861EC74D159bc) | — | — |
 | Cash+ | Ethereum mainnet | Legacy / stoken1.0 | [`0x498D9329555471bF6073A5f2D047F746d522A373`](https://etherscan.io/address/0x498D9329555471bF6073A5f2D047F746d522A373) | — | — |
-| Cash+ | Ethereum Sepolia | Legacy / stoken1.0 | [`0x734bb43B503Ea50EBE58EB371e34263551cc3d28`](https://sepolia.etherscan.io/address/0x734bb43B503Ea50EBE58EB371e34263551cc3d28) | — | — |
-| Cash+ | Avalanche Fuji testnet | Legacy / stoken1.0 | `0x0D90a6eE85d5668734bb3A515147f53EBDfE866c` | — | — |
 | Cash+ | Pharos private mainnet | Legacy / stoken1.0 | `0x0D90a6eE85d5668734bb3A515147f53EBDfE866c` | — | — |
 | Bond+ | HashKey mainnet | Legacy / stoken1.0 | `0x0D90a6eE85d5668734bb3A515147f53EBDfE866c` | — | — |
 | Bond+ | Avalanche mainnet | Legacy / stoken1.0 | `0x0D90a6eE85d5668734bb3A515147f53EBDfE866c` | — | — |
@@ -31,10 +42,7 @@ This file is the public deployment address book. It records deployed proxies, im
 | AMCASH | Ethereum mainnet | Legacy / stoken1.0 | [`0x212624EE086bF0A8393F3BE84F4e21f54372F8AF`](https://etherscan.io/address/0x212624EE086bF0A8393F3BE84F4e21f54372F8AF) | — | — |
 | AMCASH+ | BSC mainnet | Legacy / stoken1.0 | [`0x1ec3AA07e3898f1e6d4F23b5dce1bdbecb5c1Fe1`](https://bscscan.com/address/0x1ec3AA07e3898f1e6d4F23b5dce1bdbecb5c1Fe1) | — | — |
 | AMCASH+ | Ethereum mainnet | Legacy / stoken1.0 | [`0x78e80dA0616887b46A31F39310C2a8B0Fbd6A42d`](https://etherscan.io/address/0x78e80dA0616887b46A31F39310C2a8B0Fbd6A42d) | — | — |
-| Cash+ 2.0 | BSC testnet | Wallet / main | [`0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2`](https://testnet.bscscan.com/address/0x9EA9cd205783F08700d2A12C325FC4e1BF8e99a2) | — | — |
-| Cash+ 2.0 | Ethereum Sepolia | Wallet / main | [`0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138`](https://sepolia.etherscan.io/address/0xbc0E5Af03b41FEB5ec5968Ddd324f3eC48017138) | — | — |
 | Cash+ 2.0 | Pharos mainnet | Wallet / main | [`0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B`](https://pharos.socialscan.io/address/0x907C00D587DaFf16D028fE1e131d6DD3c6BF2F4B) | — | — |
-| Cash+ 2.0 | Pharos Atlantic testnet | Wallet / main | [`0x4013361546efe989Efd4a1242aDD5Ea88915e980`](https://atlantic.pharos.io/address/0x4013361546efe989Efd4a1242aDD5Ea88915e980) | — | — |
 | Bond+ 2.0 | Pharos mainnet | Wallet / main | [`0x286D9F099587f567EcE2b70eBB64B94ACD672d76`](https://pharos.socialscan.io/address/0x286D9F099587f567EcE2b70eBB64B94ACD672d76) | — | — |
 | Bond+ 2.0 | Plume mainnet | Wallet / main | [`0x0D90a6eE85d5668734bb3A515147f53EBDfE866c`](https://explorer.plume.org/address/0x0D90a6eE85d5668734bb3A515147f53EBDfE866c) | — | — |
 | Bond+ 2.0 | Ethereum mainnet | Wallet / main | [`0x28d77ea7c61cd9055983ef8b0806778d8bb12c88`](https://etherscan.io/address/0x28d77ea7c61cd9055983ef8b0806778d8bb12c88) | — | — |
@@ -58,13 +66,3 @@ This file is the public deployment address book. It records deployed proxies, im
 | mYIELD+ 3.0 | Ethereum mainnet | Wallet / main | [`0xf3a2a5de306b063D75C86B6352832639b7263a3B`](https://etherscan.io/address/0xf3a2a5de306b063D75C86B6352832639b7263a3B) | — | — |
 | GFCASH+ 3.0 | Ethereum mainnet | Wallet / main | [`0x46c8055eD9D3c7DF3f515EE6Cd4a5b8616156719`](https://etherscan.io/address/0x46c8055eD9D3c7DF3f515EE6Cd4a5b8616156719) | — | — |
 | TKCASH+ 3.0 | Ethereum mainnet | Wallet / main | [`0x257c71ecDB944EC09780c97e874ED41e98E00913`](https://etherscan.io/address/0x257c71ecDB944EC09780c97e874ED41e98E00913) | — | — |
-
-
-
-
-
-v2 hashkey-test
-PlusFund implementation: 0x138411eC25ACE602E4F7a7Ec0a795ee5492fFbD7
-PlusFundFactory: 0x465b6382DC3Bf7ec3E9DC8740ea467787e98C9dE
-Factory admin: 0xD8134c93C796F5905e520C274fAD7Da53e7bE0a5
-Factory operator: 0xc586CA1D8a5c5A26941749d283395a148a56bf55
