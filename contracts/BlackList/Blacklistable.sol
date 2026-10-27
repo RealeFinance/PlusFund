@@ -14,8 +14,13 @@ abstract contract Blacklistable is
     AccessControlEnumerableUpgradeable,
     UUPSUpgradeable
 {
-    bytes32 public constant STOKEN_BLACKLIST_ADMIN_ROLE =
+    // Keep the legacy role ID so existing grants remain valid after upgrades.
+    bytes32 public constant PLUSFUND_BLACKLIST_ADMIN_ROLE =
         keccak256("STOKEN_BLACKLIST_ADMIN_ROLE");
+
+    // Backward-compatible getter for integrations using the legacy name.
+    bytes32 public constant STOKEN_BLACKLIST_ADMIN_ROLE =
+        PLUSFUND_BLACKLIST_ADMIN_ROLE;
 
     mapping(address => bool) internal _deprecatedBlacklisted;
 
@@ -51,12 +56,12 @@ abstract contract Blacklistable is
      */
     function addBlacklistAdmin(
         address _newBlacklister
-    ) external onlyRole(STOKEN_BLACKLIST_ADMIN_ROLE) {
+    ) external onlyRole(PLUSFUND_BLACKLIST_ADMIN_ROLE) {
         require(
             _newBlacklister != address(0),
             "Blacklister is zero address"
         );
-        _grantRole(STOKEN_BLACKLIST_ADMIN_ROLE, _newBlacklister);
+        _grantRole(PLUSFUND_BLACKLIST_ADMIN_ROLE, _newBlacklister);
         emit BlacklisterAdminAdd(_newBlacklister);
     }
 
@@ -66,12 +71,12 @@ abstract contract Blacklistable is
      */
     function removeBlacklistAdmin(
         address _blacklister
-    ) external onlyRole(STOKEN_BLACKLIST_ADMIN_ROLE) {
+    ) external onlyRole(PLUSFUND_BLACKLIST_ADMIN_ROLE) {
         require(
-            hasRole(STOKEN_BLACKLIST_ADMIN_ROLE, _blacklister),
+            hasRole(PLUSFUND_BLACKLIST_ADMIN_ROLE, _blacklister),
             "Not a blacklister"
         );
-        _revokeRole(STOKEN_BLACKLIST_ADMIN_ROLE, _blacklister);
+        _revokeRole(PLUSFUND_BLACKLIST_ADMIN_ROLE, _blacklister);
         emit BlacklisterAdminRemove(_blacklister);
     }
 

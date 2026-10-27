@@ -91,7 +91,7 @@ contract PlusFund is
 
     uint256 public MIN_SUBSCRIPTION_USD_AMOUNT; // Minimum subscription amount (100 USDT/USDC with 6 decimals)
 
-    uint256 public MIN_REDEMPTION_CASH_AMOUNT; // Minimum redemption amount (0.948 Cash+ with 18 decimals)
+    uint256 public MIN_REDEMPTION_CASH_AMOUNT; // Minimum redemption amount (18 decimals)
 
     address private _ccipAdmin;
 
@@ -119,7 +119,7 @@ contract PlusFund is
         __ERC20Permit_init(name);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(STOKEN_BLACKLIST_ADMIN_ROLE, msg.sender);
+        _grantRole(PLUSFUND_BLACKLIST_ADMIN_ROLE, msg.sender);
 
         assetRecipient = address(0); // Must be configured before business operations
         assetSender = address(0); // Must be an externally controlled treasury
@@ -128,7 +128,7 @@ contract PlusFund is
         technicalServiceFeeRate = 0; // Default service fee rate; subscription fee calculations may use this setting.
 
         MIN_SUBSCRIPTION_USD_AMOUNT = 100; // Minimum subscription amount (100 USDT/USDC with 6 decimals)
-        MIN_REDEMPTION_CASH_AMOUNT = 0.948 * 10 ** 18; // Minimum redemption amount (0.948 Cash+ with 18 decimals)
+        MIN_REDEMPTION_CASH_AMOUNT = 0.948 * 10 ** 18; // Default minimum redemption amount (18 decimals)
         maxQueueLength = 100; // Default max queue length
     }
 
@@ -247,7 +247,7 @@ contract PlusFund is
      * @dev Overwrite the on-chain subscription data.
      * @param subscriptionId The ID of the subscription to overwrite.
      * @param price The price of the subscription.
-     * @param plusfundAmount The amount of stoken to subscribe.
+     * @param plusfundAmount The amount of PlusFund tokens to subscribe.
      * @param time The subscription time.
      * @param udaTxHash The transaction hash for the subscription.
      * @param offChainId The off-chain identifier for the subscription.
@@ -290,10 +290,10 @@ contract PlusFund is
     }
 
     /**
-     * @dev Subscribe to the service with USDT and stoken amounts.
+     * @dev Subscribe to the service with USDT and PlusFund token amounts.
      * @param uAmount The amount of USDT to subscribe.
      * @param uAddress The address of the USDT contract.
-     * @param plusfundAmount The amount of stoken to subscribe.
+     * @param plusfundAmount The amount of PlusFund tokens to subscribe.
      * @param user The user address who subscribed.
      * @param price The price of the subscription.
      * @param time The subscription time.
@@ -374,7 +374,7 @@ contract PlusFund is
     /**
      * @dev Handle on-chain redemption with USDT/USDC.
      * @param uAddress The address of the USDT/USDC contract.
-     * @param plusfundAmount The amount of stoken to redeem.
+     * @param plusfundAmount The amount of PlusFund tokens to redeem.
      * @param source The source of the subscription.
      * @notice onchainRedemption ==> overwriteOnChainRedemption ==> claimUSD
      */
@@ -409,9 +409,9 @@ contract PlusFund is
         );
         RedemptionData storage wd = _redemptionDataMap[redemptionId];
         wd.id = redemptionId;
-        wd.uAmount = 0; // Set USDT amount to the stoken
+        wd.uAmount = 0; // No USDT amount is recorded for this redemption.
         wd.uAddress = uAddress; // Set user address to the uAddress
-        wd.plusfundAmount = plusfundAmount; // Set stoken amount to the stoken
+        wd.plusfundAmount = plusfundAmount; // Record the redeemed PlusFund token amount.
         wd.user = msg.sender; // Set user to the sender
         wd.price = 0; // Initial price is zero
         wd.time = 0; // Initial time is zero
@@ -419,7 +419,7 @@ contract PlusFund is
         wd.source = source; // Source of the subscription
         wd.isOnChain = true;
 
-        _burn(redemptionId); // Burn the stoken amount for the user
+        _burn(redemptionId); // Burn the PlusFund tokens for the user.
 
         emit onChainRedemptionEvent(
             redemptionId,
@@ -481,10 +481,10 @@ contract PlusFund is
     }
 
     /**
-     * @dev Subscribe to the service with USDT and stoken amounts.
+     * @dev Subscribe to the service with USDT and PlusFund token amounts.
      * @param uAmount The amount of USDT to subscribe.
      * @param uAddress The address of the USDT contract.
-     * @param plusfundAmount The amount of stoken to subscribe.
+     * @param plusfundAmount The amount of PlusFund tokens to subscribe.
      * @param user The user address who subscribed.
      * @param price The price of the subscription.
      * @param time The subscription time.
@@ -702,7 +702,7 @@ contract PlusFund is
         if (wd.price == 0) revert InvalidPrice();
         if (wd.time == 0) revert InvalidRecordTime();
         if (wd.uAmount == 0) revert InvalidAssetAmount();
-        _burn(redemptionId); // Burn the stoken amount for the user
+        _burn(redemptionId); // Burn the PlusFund tokens for the user.
 
         emit burnEvent(
             redemptionId,
@@ -1134,12 +1134,6 @@ contract PlusFund is
                 revert BelowMinAmount();
             }
         }
-        // if (MAX_REDEMPTION_CASH_AMOUNT > 0) {
-        //     require(
-        //         cAmount <= MAX_REDEMPTION_CASH_AMOUNT,
-        //         "Exceeds max redemption"
-        //     );
-        // }
         _;
     }
 
@@ -1152,7 +1146,7 @@ contract PlusFund is
         emit minSubscriptionAmountUpdatedEvent(oldAmount, amount);
     }
 
-    // defult 0.948 * 10 ** 18 Cash+
+    // Default minimum redemption amount: 0.948 tokens with 18 decimals.
     function setMinRedemptionAmount(
         uint256 amount
     ) public onlyRole(PLUSFUND_ADMIN) {

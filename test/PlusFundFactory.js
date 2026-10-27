@@ -95,7 +95,7 @@ describe("PlusFundFactory", function () {
     const defaultAdminRole = await token.DEFAULT_ADMIN_ROLE();
     const plusfundAdminRole = await token.PLUSFUND_ADMIN();
     const poolAdminRole = await token.POOL_ADMIN_ROLE();
-    const blacklistAdminRole = await token.STOKEN_BLACKLIST_ADMIN_ROLE();
+    const blacklistAdminRole = await token.PLUSFUND_BLACKLIST_ADMIN_ROLE();
 
     expect(await token.name()).to.equal(config.name);
     expect(await token.symbol()).to.equal(config.symbol);

@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 async function main() {
   // ===== 需要填写/确认的参数 =====
   // 每次只为一个 PlusFund 代理生成调用数据；修改下面三项后运行脚本。
-  // minSubscriptionAmount 按整美元填写；minRedemptionAmount 按 Cash+ 数量填写，支持小数。
+  // minSubscriptionAmount 按整美元填写；minRedemptionAmount 按 PlusFund Token 数量填写，支持小数。
   const proxyAddress = "0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D";
   const minSubscriptionAmount = 100000n;
   const minRedemptionAmount = "83.842";

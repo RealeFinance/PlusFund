@@ -95,10 +95,10 @@ async function main() {
       await proxy.setMinRedemptionAmount(ethers.parseEther("924.676"));
       console.log(`设置最小赎回金额为: 924.676`);
       await proxy.renounceRole(
-        ethers.id("STOKEN_BLACKLIST_ADMIN_ROLE"),
+        await proxy.PLUSFUND_BLACKLIST_ADMIN_ROLE(),
         deployerAddress,
       );
-      console.log(`已放弃 STOKEN_BLACKLIST_ADMIN_ROLE 权限`);
+      console.log(`已放弃 PLUSFUND_BLACKLIST_ADMIN_ROLE 权限`);
 
       await proxy.renounceRole(ethers.id("UPGRADER_ROLE"), deployerAddress);
       console.log(`已放弃 UPGRADER_ROLE 权限`);

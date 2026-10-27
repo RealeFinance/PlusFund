@@ -26,9 +26,9 @@ describe("SAmMMF", function () {
     );
     await sAmMMF.waitForDeployment();
 
-    // Grant STOKEN_ADMIN role to admin
-    const STOKEN_ADMIN = await sAmMMF.STOKEN_ADMIN();
-    await sAmMMF.grantRole(STOKEN_ADMIN, admin.address);
+    // Grant PLUSFUND_ADMIN role to admin
+    const PLUSFUND_ADMIN = await sAmMMF.PLUSFUND_ADMIN();
+    await sAmMMF.grantRole(PLUSFUND_ADMIN, admin.address);
   });
 
   it("should initialize correctly", async function () {
@@ -37,7 +37,7 @@ describe("SAmMMF", function () {
     expect(
       await sAmMMF.hasRole(await sAmMMF.DEFAULT_ADMIN_ROLE(), owner.address)
     ).to.be.true;
-    expect(await sAmMMF.hasRole(await sAmMMF.STOKEN_ADMIN(), owner.address)).to
+    expect(await sAmMMF.hasRole(await sAmMMF.PLUSFUND_ADMIN(), owner.address)).to
       .be.false;
   });
 
@@ -135,7 +135,7 @@ describe("SAmMMF", function () {
   //     ).to.emit(sAmMMF, "subscribeEvent");
   //   });
 
-  //   it("should revert subscribe with zero stokenAmount", async function () {
+  //   it("should revert subscribe with zero plusfundAmount", async function () {
   //     await expect(
   //       sAmMMF
   //         .connect(admin)
@@ -149,7 +149,7 @@ describe("SAmMMF", function () {
   //           ethers.ZeroHash,
   //           "offchainid"
   //         )
-  //     ).to.be.revertedWith("Stoken amount must be greater than zero");
+  //     ).to.be.revertedWith("PlusFund amount must be greater than zero");
   //   });
 
   //   it("should revert subscribe if not admin", async function () {

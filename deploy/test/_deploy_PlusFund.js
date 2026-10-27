@@ -177,11 +177,11 @@ async function main() {
   );
 
   // ===== 部署者退出部分权限（DEFAULT_ADMIN_ROLE 单独处理） =====
-  // 先自动退出 PLUSFUND_ADMIN 和 STOKEN_BLACKLIST_ADMIN_ROLE
+  // 先自动退出 PLUSFUND_ADMIN 和 PLUSFUND_BLACKLIST_ADMIN_ROLE
   console.log(`开始撤销部署者权限...`);
   const rolesToRenounce = [
     plusFundAdminRole,
-    ethers.id("STOKEN_BLACKLIST_ADMIN_ROLE"),
+    await proxy2.PLUSFUND_BLACKLIST_ADMIN_ROLE(),
   ];
   for (const role of rolesToRenounce) {
     const hasRole = await proxy2.hasRole(role, deployerAddress);
@@ -194,7 +194,7 @@ async function main() {
       console.log(`已无此角色，跳过: ${role}`);
     }
   }
-  console.log(`部署者 PLUSFUND_ADMIN 和 STOKEN_BLACKLIST_ADMIN_ROLE 已退出`);
+  console.log(`部署者 PLUSFUND_ADMIN 和 PLUSFUND_BLACKLIST_ADMIN_ROLE 已退出`);
 
   // ===== DEFAULT_ADMIN_ROLE 单独退出（可选执行） =====
   // 如果需要退出 DEFAULT_ADMIN_ROLE，取消下面的注释
@@ -221,8 +221,8 @@ async function main() {
   }
 
   console.log(`PRODUCT_NAME=${PRODUCT_NAME}`);
-  console.log(`stoken_Contract_Address=${tokenAddress}`);
-  console.log(`stoken_Start_Height=${blockNumber}`);
+  console.log(`plusfund_Contract_Address=${tokenAddress}`);
+  console.log(`plusfund_Start_Height=${blockNumber}`);
 }
 
 main().catch(console.error);
@@ -231,8 +231,8 @@ main().catch(console.error);
 
 // ====== 多签调用timelock示例 ======
 
-// 假设你有 SToken 和 Timelock 的 interface
-// const stokenInterface = new ethers.Interface([
+// 假设你有 PlusFund 和 Timelock 的 interface
+// const plusFundInterface = new ethers.Interface([
 //   "function setAssetRecipient(address newRecipient)"
 // ]);
 // const timelockInterface = new ethers.Interface([
@@ -240,14 +240,14 @@ main().catch(console.error);
 //   "function execute(address target, uint256 value, bytes data, bytes32 predecessor, bytes32 salt)"
 // ]);
 
-// // ① 先把实际要调用的 SToken 方法编码
-// const setAssetRecipientData = stokenInterface.encodeFunctionData("setAssetRecipient", [
+// // ① 先把实际要调用的 PlusFund 方法编码
+// const setAssetRecipientData = plusFundInterface.encodeFunctionData("setAssetRecipient", [
 //   "0x新地址"
 // ]);
 
 // // ② 再编码 timelock.schedule() 调用
 // const scheduleData = timelockInterface.encodeFunctionData("schedule", [
-//   "0xSToken代理地址", // target
+//   "0xPlusFund代理地址", // target
 //   0, // value（不带 ETH）
 //   setAssetRecipientData, // data → 实际要调用的方法
 //   ethers.ZeroHash, // predecessor（无前置操作）

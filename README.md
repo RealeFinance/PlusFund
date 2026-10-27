@@ -61,9 +61,9 @@ The contract records whether a subscription or redemption is on-chain through `i
 The main operational roles are:
 
 - `DEFAULT_ADMIN_ROLE`: UUPS authorization and high-privilege configuration.
-- `STOKEN_ADMIN`: operational configuration, pause control, subscription/redemption administration, and blacklist administration where assigned.
+- `PLUSFUND_ADMIN`: operational configuration, pause control, subscription/redemption administration, and blacklist administration where assigned.
 - `POOL_ADMIN_ROLE`: controlled cross-chain `mint()` and `burnFrom()` operations.
-- `STOKEN_BLACKLIST_ADMIN_ROLE`: blacklist administration.
+- `PLUSFUND_BLACKLIST_ADMIN_ROLE`: blacklist administration (retains the legacy role ID for upgrade compatibility).
 
 Deployments should place privileged administration behind the configured Safe/Timelock governance process. `PlusFundFactory` enforces a minimum Timelock delay of 48 hours and validates configured governance contracts.
 

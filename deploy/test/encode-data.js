@@ -28,8 +28,8 @@ async function main() {
   console.log(`正在部署到网络: ${networkName}`);
   console.log(`部署者地址: ${deployerAddress}`);
 
-  // 假设你有 SToken 和 Timelock 的 interface
-  const stokenInterface = new ethers.Interface([
+  // 假设你有 PlusFund 和 Timelock 的 interface
+  const plusFundInterface = new ethers.Interface([
     "function setTechnicalServiceFeeRate(uint256 newRate)",
     "function setAssetSender(address newSender)",
     "function grantRole(bytes32 role, address account)",
@@ -40,18 +40,18 @@ async function main() {
     timelockAddress,
   );
 
-  // ① 先把实际要调用的 SToken 方法编码
-  const setAssetSenderData = stokenInterface.encodeFunctionData(
+  // ① 先把实际要调用的 PlusFund 方法编码
+  const setAssetSenderData = plusFundInterface.encodeFunctionData(
     "setAssetSender",
     [proxyAddress], // 新的发送者地址
   );
 
-  const grantRoleData = stokenInterface.encodeFunctionData(
+  const grantRoleData = plusFundInterface.encodeFunctionData(
     "grantRole",
     [ethers.ZeroHash, proxyAddress], // 新的管理员角色
   );
 
-  const revokeRoleData = stokenInterface.encodeFunctionData(
+  const revokeRoleData = plusFundInterface.encodeFunctionData(
     "revokeRole",
     [ethers.ZeroHash, proxyAddress], // 新的管理员角色
   );

@@ -15,7 +15,7 @@ interface IPlusFundFactoryToken {
 
     function POOL_ADMIN_ROLE() external view returns (bytes32);
 
-    function STOKEN_BLACKLIST_ADMIN_ROLE() external view returns (bytes32);
+    function PLUSFUND_BLACKLIST_ADMIN_ROLE() external view returns (bytes32);
 
     function grantRole(bytes32 role, address account) external;
 
@@ -279,7 +279,7 @@ contract PlusFundFactory is AccessControl {
         }
 
         token.renounceRole(plusfundAdminRole, address(this));
-        token.renounceRole(token.STOKEN_BLACKLIST_ADMIN_ROLE(), address(this));
+        token.renounceRole(token.PLUSFUND_BLACKLIST_ADMIN_ROLE(), address(this));
         token.renounceRole(defaultAdminRole, address(this));
 
         if (token.hasRole(defaultAdminRole, address(this))) {

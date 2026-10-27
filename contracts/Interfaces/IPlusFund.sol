@@ -8,7 +8,7 @@ interface IPlusFund {
         uint256 id; // Subscription ID
         uint256 uAmount; // Amount of USDT to subscribe
         address uAddress; // User address who subscribed
-        uint256 plusfundAmount; // Amount of stoken to subscribe
+        uint256 plusfundAmount; // Amount of PlusFund tokens to subscribe
         address user; // User address who subscribed
         uint256 price; // Price of the subscription
         uint256 time; // Subscription time
