@@ -101,6 +101,13 @@ module.exports = {
       gasPrice: "auto",
       timeout: 2000000,
     },
+    soneiumMinato: {
+      url: process.env.SONEIUM_MINATO_RPC_URL || "https://soneium-minato.rpc.sentio.xyz",
+      accounts: [process.env.PRIVATE_KEY_2],
+      chainId: 1946,
+      gasPrice: "auto",
+      timeout: 2000000,
+    },
     arcTestnet: {
       url: "https://rpc.testnet.arc.io",
       accounts: [process.env.PRIVATE_KEY_2],
@@ -185,6 +192,8 @@ module.exports = {
       "hashkey-chain-testnet": process.env.ETHERSCAN_API_KEY_HASHKEY_CHAIN_TESTNET || "",
       bscTestnet: process.env.ETHERSCAN_API_KEY_BSC_TESTNET || "",
       bsc: process.env.ETHERSCAN_API_KEY_BSC || "",
+      // Soneium's hosted Blockscout API requires a Pro API key for its shared API endpoint.
+      soneiumMinato: process.env.BLOCKSCOUT_API_KEY_SONEIUM_MINATO || "",
       avalancheFujiTestnet: process.env.ETHERSCAN_API_KEY_AVALANCHE_FUJI_TESTNET || "",
       avalanche: process.env.ETHERSCAN_API_KEY_AVALANCHE || "",
       PharosPrivateMainnet: process.env.ETHERSCAN_API_KEY_PHAROS_PRIVATE_MAINNET || "",
@@ -216,6 +225,14 @@ module.exports = {
         urls: {
           apiURL: "https://api.etherscan.io/v2/api?chainid=97", // BSC测试网专用API
           browserURL: "https://testnet.bscscan.com",
+        },
+      },
+      {
+        network: "soneiumMinato",
+        chainId: 1946,
+        urls: {
+          apiURL: "https://api.blockscout.com/1946/api",
+          browserURL: "https://soneium-minato.blockscout.com",
         },
       },
       {
