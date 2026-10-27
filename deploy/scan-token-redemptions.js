@@ -1,8 +1,8 @@
 const { ethers } = require("ethers");
 
 const ABI = [
-  "event onChainRedemptionEvent(uint256 redemptionId, address uAddress, uint256 stokenAmount, address user, uint16 source)",
-  "event claimUSDEvent(uint256 redemptionId, uint256 uAmount, address uAddress, uint256 stokenAmount, address user, uint256 price, uint256 time, bytes32 udaTxHash, uint16 source, uint256 technicalServiceFee)",
+  "event onChainRedemptionEvent(uint256 redemptionId, address uAddress, uint256 plusfundAmount, address user, uint16 source)",
+  "event claimUSDEvent(uint256 redemptionId, uint256 uAmount, address uAddress, uint256 plusfundAmount, address user, uint256 price, uint256 time, bytes32 udaTxHash, uint16 source, uint256 technicalServiceFee)",
   "event overwriteOnChainRedemptionEvent(uint256 redemptionId, uint256 uAmount, uint256 price, uint256 time, bytes32 udaTxHash, uint256 technicalServiceFee, tuple(uint256 id, uint256 amount)[] tokenTransferDetails)",
 ];
 
@@ -91,7 +91,7 @@ async function main() {
       const existing = redemptions.get(id) || { redemptionId: id };
       existing.onChainRedemption = {
         uAddress: event.args.uAddress,
-        stokenAmount: event.args.stokenAmount,
+        plusfundAmount: event.args.plusfundAmount,
         user: event.args.user,
         source: event.args.source,
         blockNumber: event.blockNumber,

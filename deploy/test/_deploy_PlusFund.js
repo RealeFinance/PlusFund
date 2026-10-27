@@ -227,7 +227,7 @@ async function main() {
 
 main().catch(console.error);
 
-// npx hardhat run deploy/test/_deploy_SToken.js --network bscTestnet
+// npx hardhat run deploy/test/_deploy_PlusFund.js --network bscTestnet
 
 // ====== 多签调用timelock示例 ======
 

@@ -29,7 +29,7 @@ const DEPLOYMENT_CONFIG = {
     saltText: "RWA-USDC-001-v1",
     name: "Example RWA Token",
     symbol: "ERWA",
-    stokenAdmin: "",
+    plusfundAdmin: "",
     poolAdmin: ethers.ZeroAddress,
     blacklistAdmin: ethers.ZeroAddress,
     ccipAdmin: ethers.ZeroAddress,
@@ -96,7 +96,7 @@ function loadTokenConfig() {
     productId,
     name: requiredField(raw.name, "name"),
     symbol: requiredField(raw.symbol, "symbol"),
-    stokenAdmin: normalizeAddress(raw.stokenAdmin, "stokenAdmin"),
+    plusfundAdmin: normalizeAddress(raw.plusfundAdmin, "plusfundAdmin"),
     poolAdmin: normalizeAddress(raw.poolAdmin, "poolAdmin", true),
     blacklistAdmin: normalizeAddress(raw.blacklistAdmin, "blacklistAdmin", true),
     ccipAdmin: normalizeAddress(raw.ccipAdmin, "ccipAdmin", true),
@@ -299,23 +299,23 @@ async function deployToken(factory, deployer, tokenConfig, salt) {
   }
 
   const defaultAdminRole = await token.DEFAULT_ADMIN_ROLE();
-  const stokenAdminRole = await token.PLUSFUND_ADMIN();
+  const plusfundAdminRole = await token.PLUSFUND_ADMIN();
   const poolAdminRole = await token.POOL_ADMIN_ROLE();
   const timelockAdmin = await token.hasRole(defaultAdminRole, timelock);
-  const stokenAdminGranted = await token.hasRole(
-    stokenAdminRole,
-    tokenConfig.stokenAdmin,
+  const plusfundAdminGranted = await token.hasRole(
+    plusfundAdminRole,
+    tokenConfig.plusfundAdmin,
   );
   const blacklistAdminGranted = tokenConfig.blacklistAdmin === ethers.ZeroAddress
     ? true
-    : await token.hasRole(stokenAdminRole, tokenConfig.blacklistAdmin);
+    : await token.hasRole(plusfundAdminRole, tokenConfig.blacklistAdmin);
   const poolAdminGranted = tokenConfig.poolAdmin === ethers.ZeroAddress
     ? true
     : await token.hasRole(poolAdminRole, tokenConfig.poolAdmin);
 
   if (
     !timelockAdmin ||
-    !stokenAdminGranted ||
+    !plusfundAdminGranted ||
     !blacklistAdminGranted ||
     !poolAdminGranted
   ) {

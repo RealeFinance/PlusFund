@@ -44,7 +44,7 @@ describe("PlusFundFactory", function () {
       productId: ethers.id("NGIPlus"),
       name: "NGIPlus",
       symbol: "NGI+",
-      stokenAdmin: governanceAddress,
+      plusfundAdmin: governanceAddress,
       poolAdmin: poolAdminAddress,
       blacklistAdmin: signers[3].address,
       ccipAdmin: signers[4].address,
@@ -93,7 +93,7 @@ describe("PlusFundFactory", function () {
     );
 
     const defaultAdminRole = await token.DEFAULT_ADMIN_ROLE();
-    const stokenAdminRole = await token.PLUSFUND_ADMIN();
+    const plusfundAdminRole = await token.PLUSFUND_ADMIN();
     const poolAdminRole = await token.POOL_ADMIN_ROLE();
     const blacklistAdminRole = await token.STOKEN_BLACKLIST_ADMIN_ROLE();
 
@@ -108,8 +108,8 @@ describe("PlusFundFactory", function () {
     expect(await token.hasRole(defaultAdminRole, await factory.getAddress())).to.equal(
       false,
     );
-    expect(await token.hasRole(stokenAdminRole, config.stokenAdmin)).to.equal(true);
-    expect(await token.hasRole(stokenAdminRole, config.blacklistAdmin)).to.equal(
+    expect(await token.hasRole(plusfundAdminRole, config.plusfundAdmin)).to.equal(true);
+    expect(await token.hasRole(plusfundAdminRole, config.blacklistAdmin)).to.equal(
       true,
     );
     expect(await token.hasRole(poolAdminRole, config.poolAdmin)).to.equal(true);
@@ -239,7 +239,7 @@ describe("PlusFundFactory", function () {
         await governance.getAddress(),
         await poolAdmin.getAddress(),
       ),
-      stokenAdmin: signers[1].address,
+      plusfundAdmin: signers[1].address,
     };
 
     await expect(

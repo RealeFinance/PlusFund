@@ -8,7 +8,7 @@ interface IPlusFund {
         uint256 id; // Subscription ID
         uint256 uAmount; // Amount of USDT to subscribe
         address uAddress; // User address who subscribed
-        uint256 stokenAmount; // Amount of stoken to subscribe
+        uint256 plusfundAmount; // Amount of stoken to subscribe
         address user; // User address who subscribed
         uint256 price; // Price of the subscription
         uint256 time; // Subscription time
@@ -21,7 +21,7 @@ interface IPlusFund {
         uint256 id; // Redemption ID
         uint256 uAmount; // Amount of USDT to Redemption
         address uAddress; // User address who requested the Redemption
-        uint256 stokenAmount; // Amount of tokens to Redemption
+        uint256 plusfundAmount; // Amount of tokens to Redemption
         address user; // User address who requested the Redemption
         uint256 price; // Price of the Redemption
         uint256 time; // Redemption time
@@ -74,7 +74,7 @@ interface IPlusFund {
         uint256 subscriptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -93,7 +93,7 @@ interface IPlusFund {
 
     event overwriteOnChainSubscribeEvent(
         uint256 subscriptionId,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         uint256 price,
         uint256 time,
         bytes32 udaTxHash,
@@ -103,7 +103,7 @@ interface IPlusFund {
     event onChainRedemptionEvent(
         uint256 redemptionId,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint16 source
     );
@@ -111,7 +111,7 @@ interface IPlusFund {
     event onChainBurnEvent(
         uint256 redemptionId,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint16 source
     );
@@ -139,7 +139,7 @@ interface IPlusFund {
         uint256 redemptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -152,7 +152,7 @@ interface IPlusFund {
         uint256 redemptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -172,7 +172,7 @@ interface IPlusFund {
         uint256 subscriptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -184,7 +184,7 @@ interface IPlusFund {
         uint256 subscriptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -197,7 +197,7 @@ interface IPlusFund {
         uint256 subscriptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -209,7 +209,7 @@ interface IPlusFund {
         uint256 subscriptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -222,7 +222,7 @@ interface IPlusFund {
         uint256 redemptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -235,7 +235,7 @@ interface IPlusFund {
         uint256 redemptionId,
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,

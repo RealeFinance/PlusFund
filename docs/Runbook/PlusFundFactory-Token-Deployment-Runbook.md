@@ -44,7 +44,7 @@ npm run deploy:factory -- --network <network>
 - 准备唯一的 `productId` 和 `salt`。
 - 准备 Token 名称、符号和业务参数。
 - 准备治理地址：
-  - `stokenAdmin`：必须是合约地址，建议使用 Safe 多签。
+  - `plusfundAdmin`：必须是合约地址，建议使用 Safe 多签。
   - `proposers`：必须是合约地址，建议使用 Safe 多签。
   - `cancellers`：如配置，必须是合约地址。
   - `executors`：可使用 Safe、EOA 或 `address(0)`；`address(0)` 表示开放执行。
@@ -62,7 +62,7 @@ const config = {
   name: "Example RWA Token",                  // Token 名称
   symbol: "ERWA",                             // Token 符号
 
-  stokenAdmin: "0x1111111111111111111111111111111111111111",       // 治理/业务 Safe
+  plusfundAdmin: "0x1111111111111111111111111111111111111111",       // 治理/业务 Safe
   poolAdmin: "0x2222222222222222222222222222222222222222",         // 已加入工厂白名单的 TokenPool，可为 0 地址
   blacklistAdmin: "0x3333333333333333333333333333333333333333",   // 可选；获授 PLUSFUND_ADMIN 全部权限（含黑名单）
   ccipAdmin: "0x4444444444444444444444444444444444444444",       // CCIP 管理员，可为 0 地址
@@ -101,7 +101,7 @@ const config = {
 | `productId` | `ethers.id("RWA-USDC-001")` | 全局唯一的产品 ID |
 | `name` | `"Example RWA Token"` | ERC20 名称 |
 | `symbol` | `"ERWA"` | ERC20 符号 |
-| `stokenAdmin` | Safe 地址 | 必须是合约地址，负责 Token 业务管理 |
+| `plusfundAdmin` | Safe 地址 | 必须是合约地址，负责 Token 业务管理 |
 | `poolAdmin` | 已批准的 TokenPool 地址 | 跨链铸币/销毁权限；启用跨链时必须是工厂白名单中的合约地址，可为空 |
 | `blacklistAdmin` | 管理员地址 | 可为空；非零时授予 `PLUSFUND_ADMIN`，可操作黑名单，也拥有该角色的其他业务管理权限 |
 | `ccipAdmin` | CCIP 管理员地址 | CCIP 配置权限，可为空 |
@@ -120,10 +120,10 @@ const config = {
 校验要求：
 
 - `productId` 不能为零且不能重复。
-- `stokenAdmin`、`assetRecipient`、`assetSender`、`serviceFeeRecipient` 不能为零地址。
+- `plusfundAdmin`、`assetRecipient`、`assetSender`、`serviceFeeRecipient` 不能为零地址。
 - `timelockDelay` 默认且最低为 48 小时（`172800` 秒），低于该值的部署会失败。
 - `proposers`、`executors` 不能为空。
-- `stokenAdmin`、`proposers`、`cancellers` 必须是合约地址。
+- `plusfundAdmin`、`proposers`、`cancellers` 必须是合约地址。
 - `poolAdmin` 为非零地址时，必须是已部署合约，且必须已加入工厂 `approvedPoolAdmins` 白名单。
 
 ## 2.1 设置 poolAdmin 白名单
@@ -185,7 +185,7 @@ const receipt = await tx.wait();
 Token name / symbol
 Token DEFAULT_ADMIN_ROLE = timelock
 Factory 不再拥有 Token DEFAULT_ADMIN_ROLE
-stokenAdmin 角色已授予目标治理地址
+plusfundAdmin 角色已授予目标治理地址
 supportedTokens 配置正确
 assetRecipient / assetSender / serviceFeeRecipient 均已设置为预期的外部多签地址，且链上读回值与部署配置一致
 ```
@@ -246,4 +246,4 @@ node deploy/scan-token-redemptions.js
 
 - 工厂当前不是 Permissionless，普通用户需要先拥有 `DEPLOYER_ROLE`。
 - `address(0)` 作为 executor 会开放 Timelock 执行权限。
-- `blacklistAdmin` 非零时与 `stokenAdmin` 一样获得完整 `PLUSFUND_ADMIN` 权限，并非黑名单专属权限；只有在接受这一权限范围时才配置该字段。
+- `blacklistAdmin` 非零时与 `plusfundAdmin` 一样获得完整 `PLUSFUND_ADMIN` 权限，并非黑名单专属权限；只有在接受这一权限范围时才配置该字段。

@@ -32,9 +32,9 @@ describe("PlusFund online/offline mode isolation", function () {
     await token.setAssetSender(owner.address);
     await token.setServiceFeeRecipient(owner.address);
 
-    const stokenAdmin = await token.PLUSFUND_ADMIN();
+    const plusfundAdmin = await token.PLUSFUND_ADMIN();
     const poolAdmin = await token.POOL_ADMIN_ROLE();
-    await token.grantRole(stokenAdmin, admin.address);
+    await token.grantRole(plusfundAdmin, admin.address);
     await token.grantRole(poolAdmin, admin.address);
     await token
       .connect(admin)
@@ -52,12 +52,12 @@ describe("PlusFund online/offline mode isolation", function () {
   it("keeps online and offline subscription workflows separate", async function () {
     const { user, admin, token, paymentToken, subscriptionAmount } =
       await deployFixture();
-    const stokenAmount = ethers.parseEther("1");
+    const plusfundAmount = ethers.parseEther("1");
 
     const offlineTx = await token.connect(admin).subscribe(
       subscriptionAmount,
       await paymentToken.getAddress(),
-      stokenAmount,
+      plusfundAmount,
       user.address,
       ethers.parseEther("1"),
       1n,
@@ -76,7 +76,7 @@ describe("PlusFund online/offline mode isolation", function () {
       token.connect(admin).overwriteOnChainSubscribe(
         offlineId,
         ethers.parseEther("1"),
-        stokenAmount,
+        plusfundAmount,
         1n,
         ethers.ZeroHash,
         "offline-subscription",
@@ -106,7 +106,7 @@ describe("PlusFund online/offline mode isolation", function () {
     await token.connect(admin).overwriteOnChainSubscribe(
       onlineId,
       ethers.parseEther("1"),
-      stokenAmount,
+      plusfundAmount,
       1n,
       ethers.ZeroHash,
       "online-subscription",
@@ -196,19 +196,19 @@ describe("PlusFund online/offline mode isolation", function () {
 
   it("does not allow an offline redemption to use the online overwrite path", async function () {
     const { user, admin, token, paymentToken } = await deployFixture();
-    const stokenAmount = ethers.parseEther("1");
+    const plusfundAmount = ethers.parseEther("1");
 
     await token.connect(admin).mint(
       user.address,
-      stokenAmount,
+      plusfundAmount,
       [[1n, user.address, 31337n]],
-      [stokenAmount],
+      [plusfundAmount],
     );
 
     const redemptionTx = await token.connect(admin).redemption(
       ethers.parseUnits("100", 6),
       await paymentToken.getAddress(),
-      stokenAmount,
+      plusfundAmount,
       user.address,
       ethers.parseEther("1"),
       1n,
@@ -239,22 +239,22 @@ describe("PlusFund online/offline mode isolation", function () {
   it("prevents duplicate active redemption offChainIds and releases them after burn", async function () {
     const { user, admin, token, paymentToken } = await deployFixture();
     const paymentTokenAddress = await paymentToken.getAddress();
-    const stokenAmount = ethers.parseEther("1");
+    const plusfundAmount = ethers.parseEther("1");
     await token.connect(admin).mint(
       user.address,
-      stokenAmount * 2n,
+      plusfundAmount * 2n,
       [
         [1n, user.address, 31337n],
         [2n, user.address, 31337n],
       ],
-      [stokenAmount, stokenAmount],
+      [plusfundAmount, plusfundAmount],
     );
 
     const createOfflineRedemption = (amount, offChainId) =>
       token.connect(admin).redemption(
         amount,
         paymentTokenAddress,
-        stokenAmount,
+        plusfundAmount,
         user.address,
         ethers.parseEther("1"),
         1n,

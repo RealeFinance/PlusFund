@@ -34,23 +34,23 @@ describe("PlusFund fund account configuration", function () {
       ),
     ).to.be.revertedWithCustomError(token, "FundAccountsNotConfigured");
 
-    const stokenAmount = ethers.parseEther("1");
+    const plusfundAmount = ethers.parseEther("1");
     await token.grantRole(await token.POOL_ADMIN_ROLE(), owner.address);
     await token.mint(
       user.address,
-      stokenAmount,
+      plusfundAmount,
       [[1n, user.address, 31337n]],
-      [stokenAmount],
+      [plusfundAmount],
     );
 
     await expect(
       token.connect(user).onChainRedemption(
         await paymentToken.getAddress(),
-        stokenAmount,
+        plusfundAmount,
         1,
       ),
     ).to.be.revertedWithCustomError(token, "FundAccountsNotConfigured");
-    expect(await token.balanceOf(user.address)).to.equal(stokenAmount);
+    expect(await token.balanceOf(user.address)).to.equal(plusfundAmount);
 
     await expect(
       token.connect(user).claimUSD(1),

@@ -54,7 +54,7 @@ contract PlusFundFactory is AccessControl {
         bytes32 productId;
         string name;
         string symbol;
-        address stokenAdmin;
+        address plusfundAdmin;
         address poolAdmin;
         address blacklistAdmin;
         address ccipAdmin;
@@ -188,7 +188,7 @@ contract PlusFundFactory is AccessControl {
             revert ProductAlreadyExists(config.productId);
         }
         if (
-            config.stokenAdmin == address(0) ||
+            config.plusfundAdmin == address(0) ||
             config.assetRecipient == address(0) ||
             config.assetSender == address(0) ||
             config.serviceFeeRecipient == address(0) ||
@@ -204,7 +204,7 @@ contract PlusFundFactory is AccessControl {
             _requireContract(config.proposers[i]);
         }
 
-        _requireContract(config.stokenAdmin);
+        _requireContract(config.plusfundAdmin);
         if (config.poolAdmin != address(0)) {
             _requireApprovedPoolAdmin(config.poolAdmin);
         }
@@ -230,9 +230,9 @@ contract PlusFundFactory is AccessControl {
 
         IPlusFundFactoryToken token = IPlusFundFactoryToken(proxy);
         bytes32 defaultAdminRole = token.DEFAULT_ADMIN_ROLE();
-        bytes32 stokenAdminRole = token.PLUSFUND_ADMIN();
+        bytes32 plusfundAdminRole = token.PLUSFUND_ADMIN();
 
-        token.grantRole(stokenAdminRole, address(this));
+        token.grantRole(plusfundAdminRole, address(this));
         token.setAssetRecipient(config.assetRecipient);
         token.setAssetSender(config.assetSender);
         token.setServiceFeeRecipient(config.serviceFeeRecipient);
@@ -255,12 +255,12 @@ contract PlusFundFactory is AccessControl {
             token.setCCIPAdmin(config.ccipAdmin);
         }
 
-        token.grantRole(stokenAdminRole, config.stokenAdmin);
+        token.grantRole(plusfundAdminRole, config.plusfundAdmin);
         if (config.poolAdmin != address(0)) {
             token.grantRole(token.POOL_ADMIN_ROLE(), config.poolAdmin);
         }
         if (config.blacklistAdmin != address(0)) {
-            token.grantRole(stokenAdminRole, config.blacklistAdmin);
+            token.grantRole(plusfundAdminRole, config.blacklistAdmin);
         }
 
         token.grantRole(defaultAdminRole, timelock);
@@ -278,7 +278,7 @@ contract PlusFundFactory is AccessControl {
             revert InvalidConfiguration();
         }
 
-        token.renounceRole(stokenAdminRole, address(this));
+        token.renounceRole(plusfundAdminRole, address(this));
         token.renounceRole(token.STOKEN_BLACKLIST_ADMIN_ROLE(), address(this));
         token.renounceRole(defaultAdminRole, address(this));
 

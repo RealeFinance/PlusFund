@@ -91,7 +91,7 @@
 - `contracts/token/PlusFund.sol`
 - `contracts/factory/PlusFundFactory.sol`
 - `deploy/deploy-plusfund-factory.js`
-- `deploy/test/_deploy_SToken.js`
+- `deploy/test/_deploy_PlusFund.js`
 - `deploy/test/prepare-uups-upgrade.js`
 - `hardhat.config.js`
 - `docs/Audit-Reports/PlusFund-2.1.3-Astra-Security-Audit-Review.md`

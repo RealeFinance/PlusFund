@@ -247,7 +247,7 @@ contract PlusFund is
      * @dev Overwrite the on-chain subscription data.
      * @param subscriptionId The ID of the subscription to overwrite.
      * @param price The price of the subscription.
-     * @param stokenAmount The amount of stoken to subscribe.
+     * @param plusfundAmount The amount of stoken to subscribe.
      * @param time The subscription time.
      * @param udaTxHash The transaction hash for the subscription.
      * @param offChainId The off-chain identifier for the subscription.
@@ -255,7 +255,7 @@ contract PlusFund is
     function overwriteOnChainSubscribe(
         uint256 subscriptionId,
         uint256 price,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         uint256 time,
         bytes32 udaTxHash,
         string memory offChainId
@@ -271,17 +271,17 @@ contract PlusFund is
             _subscribeDataMap[subscriptionId].isOnChain,
             "Only on-chain subscription"
         );
-        if (stokenAmount == 0) revert InvalidAssetAmount();
+        if (plusfundAmount == 0) revert InvalidAssetAmount();
 
         SubscribeData storage sd = _subscribeDataMap[subscriptionId];
-        sd.stokenAmount = stokenAmount;
+        sd.plusfundAmount = plusfundAmount;
         sd.price = price;
         sd.time = time;
         sd.udaTxHash = udaTxHash;
 
         emit overwriteOnChainSubscribeEvent(
             subscriptionId,
-            stokenAmount,
+            plusfundAmount,
             price,
             time,
             udaTxHash,
@@ -293,7 +293,7 @@ contract PlusFund is
      * @dev Subscribe to the service with USDT and stoken amounts.
      * @param uAmount The amount of USDT to subscribe.
      * @param uAddress The address of the USDT contract.
-     * @param stokenAmount The amount of stoken to subscribe.
+     * @param plusfundAmount The amount of stoken to subscribe.
      * @param user The user address who subscribed.
      * @param price The price of the subscription.
      * @param time The subscription time.
@@ -304,7 +304,7 @@ contract PlusFund is
     function subscribe(
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -321,7 +321,7 @@ contract PlusFund is
     {
         if (price == 0) revert InvalidPrice();
         if (time == 0) revert InvalidRecordTime();
-        if (stokenAmount == 0) revert InvalidAssetAmount();
+        if (plusfundAmount == 0) revert InvalidAssetAmount();
         if (!containsAddress(uAddress)) {
             revert UnSupportedTokenAddress();
         }
@@ -331,7 +331,7 @@ contract PlusFund is
                     user,
                     uAmount,
                     uAddress,
-                    stokenAmount,
+                    plusfundAmount,
                     price,
                     time,
                     offChainId
@@ -349,7 +349,7 @@ contract PlusFund is
             id: subscriptionId,
             uAmount: uAmount,
             uAddress: uAddress,
-            stokenAmount: stokenAmount,
+            plusfundAmount: plusfundAmount,
             user: user,
             price: price,
             time: time,
@@ -361,7 +361,7 @@ contract PlusFund is
             subscriptionId,
             uAmount,
             uAddress,
-            stokenAmount,
+            plusfundAmount,
             user,
             price,
             time,
@@ -374,19 +374,19 @@ contract PlusFund is
     /**
      * @dev Handle on-chain redemption with USDT/USDC.
      * @param uAddress The address of the USDT/USDC contract.
-     * @param stokenAmount The amount of stoken to redeem.
+     * @param plusfundAmount The amount of stoken to redeem.
      * @param source The source of the subscription.
      * @notice onchainRedemption ==> overwriteOnChainRedemption ==> claimUSD
      */
     function onChainRedemption(
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         uint16 source
     )
         external
         notBlacklisted(msg.sender)
         zeroAddress(uAddress)
-        checkCashAmount(stokenAmount)
+        checkPlusFundAmount(plusfundAmount)
         whenNotPaused
     {
         _requireFundAccountsConfigured();
@@ -399,7 +399,7 @@ contract PlusFund is
             keccak256(
                 abi.encodePacked(
                     uAddress,
-                    stokenAmount,
+                    plusfundAmount,
                     msg.sender,
                     block.timestamp,
                     block.prevrandao,
@@ -411,7 +411,7 @@ contract PlusFund is
         wd.id = redemptionId;
         wd.uAmount = 0; // Set USDT amount to the stoken
         wd.uAddress = uAddress; // Set user address to the uAddress
-        wd.stokenAmount = stokenAmount; // Set stoken amount to the stoken
+        wd.plusfundAmount = plusfundAmount; // Set stoken amount to the stoken
         wd.user = msg.sender; // Set user to the sender
         wd.price = 0; // Initial price is zero
         wd.time = 0; // Initial time is zero
@@ -424,14 +424,14 @@ contract PlusFund is
         emit onChainRedemptionEvent(
             redemptionId,
             uAddress,
-            stokenAmount,
+            plusfundAmount,
             msg.sender,
             source
         ); // Emit event for off-chain redemption
         // emit onChainBurnEvent(
         //     redemptionId,
         //     uAddress,
-        //     stokenAmount,
+        //     plusfundAmount,
         //     msg.sender,
         //     source
         // ); // Emit event for on-chain burn
@@ -484,7 +484,7 @@ contract PlusFund is
      * @dev Subscribe to the service with USDT and stoken amounts.
      * @param uAmount The amount of USDT to subscribe.
      * @param uAddress The address of the USDT contract.
-     * @param stokenAmount The amount of stoken to subscribe.
+     * @param plusfundAmount The amount of stoken to subscribe.
      * @param user The user address who subscribed.
      * @param price The price of the subscription.
      * @param time The subscription time.
@@ -495,7 +495,7 @@ contract PlusFund is
     function redemption(
         uint256 uAmount,
         address uAddress,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         address user,
         uint256 price,
         uint256 time,
@@ -507,7 +507,7 @@ contract PlusFund is
         notBlacklisted(user)
         zeroAddress(uAddress)
         zeroAddress(user)
-        checkCashAmount(stokenAmount)
+        checkPlusFundAmount(plusfundAmount)
         whenNotPaused
     {
         if (uAmount == 0) revert InvalidAssetAmount();
@@ -522,7 +522,7 @@ contract PlusFund is
                     user,
                     uAmount,
                     uAddress,
-                    stokenAmount,
+                    plusfundAmount,
                     price,
                     time,
                     offChainId
@@ -541,7 +541,7 @@ contract PlusFund is
         wd.id = redemptionId;
         wd.uAmount = uAmount;
         wd.uAddress = uAddress;
-        wd.stokenAmount = stokenAmount;
+        wd.plusfundAmount = plusfundAmount;
         wd.user = user;
         wd.price = price;
         wd.time = time;
@@ -553,7 +553,7 @@ contract PlusFund is
             redemptionId,
             uAmount,
             uAddress,
-            stokenAmount,
+            plusfundAmount,
             user,
             price,
             time,
@@ -575,13 +575,13 @@ contract PlusFund is
             !_subscribeDataMap[subscriptionId].isOnChain,
             "Only off-chain subscription"
         );
-        uint256 tokenId = _mintStoken(subscriptionId);
+        uint256 tokenId = _mintPlusFund(subscriptionId);
         SubscribeData memory sd = _subscribeDataMap[subscriptionId];
         emit executeEvent(
             subscriptionId,
             sd.uAmount,
             sd.uAddress,
-            sd.stokenAmount,
+            sd.plusfundAmount,
             sd.user,
             sd.price,
             sd.time,
@@ -607,13 +607,13 @@ contract PlusFund is
             _subscribeDataMap[subscriptionId].isOnChain,
             "Only on-chain subscription"
         );
-        uint256 tokenId = _mintStoken(subscriptionId);
+        uint256 tokenId = _mintPlusFund(subscriptionId);
         SubscribeData memory sd = _subscribeDataMap[subscriptionId];
         emit claimEvent(
             subscriptionId,
             sd.uAmount,
             sd.uAddress,
-            sd.stokenAmount,
+            sd.plusfundAmount,
             sd.user,
             sd.price,
             sd.time,
@@ -654,7 +654,7 @@ contract PlusFund is
             redemptionId,
             wd.uAmount,
             wd.uAddress,
-            wd.stokenAmount,
+            wd.plusfundAmount,
             wd.user,
             wd.price,
             wd.time,
@@ -668,14 +668,14 @@ contract PlusFund is
     // This function allows the admin to mint tokens based on a subscription.
     // It checks if the subscription ID is valid and retrieves the subscription data.
     // It then adds new token data and updates the user's token list and map.
-    function _mintStoken(uint256 subscriptionId) internal returns (uint256) {
+    function _mintPlusFund(uint256 subscriptionId) internal returns (uint256) {
         SubscribeData storage sub = _subscribeDataMap[subscriptionId];
         if (sub.id == 0) revert SubscriptionNotFound();
-        if (sub.stokenAmount == 0) revert InvalidAssetAmount();
+        if (sub.plusfundAmount == 0) revert InvalidAssetAmount();
         if (sub.user == address(0)) revert InvalidUserAddress();
         if (sub.price == 0) revert InvalidPrice();
         if (sub.time == 0) revert InvalidRecordTime();
-        uint256 tokenId = _addNewTokenData(sub.user, sub.stokenAmount);
+        uint256 tokenId = _addNewTokenData(sub.user, sub.plusfundAmount);
         return tokenId;
     }
 
@@ -708,7 +708,7 @@ contract PlusFund is
             redemptionId,
             wd.uAmount,
             wd.uAddress,
-            wd.stokenAmount,
+            wd.plusfundAmount,
             wd.user,
             wd.price,
             wd.time,
@@ -750,7 +750,7 @@ contract PlusFund is
         RedemptionData storage wd = _redemptionDataMap[redemptionId];
         TokenTransferDetail[] memory _tt = _removeTokenByIdList(
             wd.user,
-            wd.stokenAmount
+            wd.plusfundAmount
         );
 
         // Manually copy memory array to storage array
@@ -759,8 +759,8 @@ contract PlusFund is
             wd.tokenTransferDetails.push(_tt[i]);
         }
 
-        _totalSupply -= wd.stokenAmount;
-        emit Transfer(wd.user, address(0), wd.stokenAmount);
+        _totalSupply -= wd.plusfundAmount;
+        emit Transfer(wd.user, address(0), wd.plusfundAmount);
     }
 
     // function _getTimeIntervalByDay(
@@ -859,7 +859,7 @@ contract PlusFund is
     // This function generates a new token ID based on the address and current block parameters.
     function _addNewTokenData(
         address user,
-        uint256 stokenAmount
+        uint256 plusfundAmount
     ) internal returns (uint256) {
         uint256 tokenId = uint256(
             keccak256(abi.encodePacked(user, block.chainid))
@@ -871,16 +871,16 @@ contract PlusFund is
         });
 
         _tokenDataMap[tokenId] = newTokenData;
-        _depositInternal(user, tokenId, stokenAmount);
-        _totalSupply += stokenAmount;
+        _depositInternal(user, tokenId, plusfundAmount);
+        _totalSupply += plusfundAmount;
 
-        emit Transfer(address(0), user, stokenAmount);
+        emit Transfer(address(0), user, plusfundAmount);
         return tokenId;
     }
 
     function _addNewTokenDataCrossChain(
         address user,
-        uint256 stokenAmount,
+        uint256 plusfundAmount,
         TokenData[] memory tokenDatas,
         uint256[] memory amounts
     ) internal {
@@ -897,9 +897,9 @@ contract PlusFund is
             total += amounts[i];
         }
 
-        require(total == stokenAmount, "Amount mismatch");
-        _totalSupply += stokenAmount;
-        emit Transfer(address(0), user, stokenAmount);
+        require(total == plusfundAmount, "Amount mismatch");
+        _totalSupply += plusfundAmount;
+        emit Transfer(address(0), user, plusfundAmount);
     }
 
     // Get the token data for a specified token ID
@@ -1128,7 +1128,7 @@ contract PlusFund is
         _;
     }
 
-    modifier checkCashAmount(uint256 cAmount) {
+    modifier checkPlusFundAmount(uint256 cAmount) {
         if (MIN_REDEMPTION_CASH_AMOUNT > 0) {
             if (cAmount < MIN_REDEMPTION_CASH_AMOUNT) {
                 revert BelowMinAmount();
