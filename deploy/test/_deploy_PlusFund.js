@@ -19,9 +19,9 @@ const PharosTokenAddresses = [
 async function main() {
   // ===== 你要改的参数 =====
   const contractName = "PlusFund";
-  const PRODUCT_NAME = "PGNGIPlus";
-  const name = "PGNGIPlus";
-  const symbol = "PGNGI+";
+  const PRODUCT_NAME = "PGIPPlus";
+  const name = "PGIPPlus";
+  const symbol = "PGIP+";
   const timelockDelay = 172800; // 2 天（秒）
   const data = {
     // ===== Timelock 配置 =====
@@ -29,19 +29,21 @@ async function main() {
     timelock: {
       enabled: true,
       minDelay: timelockDelay, // 2 天（秒）
-      proposers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可发起提案的地址
+      proposers: ["0x37A259246d6AA0842C2e4564EF219CE462B6e2aA"], // 可发起提案的地址
       executors: ["0x0000000000000000000000000000000000000000"], // 放空则延迟到后任何人可执行
-      cancellers: ["0x0589EbFa4A6A1d457AB9f4280DF8079806bA46ae"], // 可取消待执行提案的地址
+      cancellers: ["0x37A259246d6AA0842C2e4564EF219CE462B6e2aA"], // 可取消待执行提案的地址
     },
     // ===== 角色分配 =====
-    PLUSFUND_ADMIN: ["0x9Ac1862C0D5C1bf821cc6926EB2044D2b4D10b17"], // 日常运维地址（无延迟）
+    PLUSFUND_ADMIN: ["0x7419896e4198b259bbc1C02e4AC94792B64C1c45"], // 日常运维地址（无延迟）
     // ===== 资产地址 =====
-    assetRecipient: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
-    assetSender: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
-    serviceFeeRecipient: "0x39132F7Ee82656edd806d3980edb5Ef114568A25",
+    assetRecipient: "0xc76683E89c61Da7F479db543a591CEE00353644D",
+    assetSender: "0xc76683E89c61Da7F479db543a591CEE00353644D",
+    serviceFeeRecipient: "0xc76683E89c61Da7F479db543a591CEE00353644D",
     // ===== 支持代币 =====
     // supportedTokenAddresses: [...ETHTokenAddresses],
-    supportedTokenAddresses: ["0x3600000000000000000000000000000000000000"],
+    supportedTokenAddresses: ["0xbA9986D2381edf1DA03B0B9c1f8b00dc4AacC369", "0x3A337a6adA9d885b6Ad95ec48F9b75f197b5AE35"],
+    minSubscriptionAmount: 100000,
+    minRedemptionAmount: "1000000000000000000"
   };
   // =======================
 
@@ -56,6 +58,8 @@ async function main() {
   const proxy2 = await upgrades.deployProxy(Contract, [name, symbol], {
     initializer: "initialize",
     gasLimit: 15000000,
+    timeout: 0,
+    pollingInterval: 10000,
   });
   await proxy2.waitForDeployment();
   const deploymentTx = proxy2.deploymentTransaction();
@@ -135,6 +139,32 @@ async function main() {
   const tx = await proxy2.grantRole(plusFundAdminRole, deployerAddress);
   await tx.wait();
   console.log(`PLUSFUND_ADMIN权限已授予: ${deployerAddress}`);
+
+  const txMinSubscription = await proxy2.setMinSubscriptionAmount(
+    data.minSubscriptionAmount,
+  );
+  await txMinSubscription.wait();
+  console.log(`最小申购金额已设置: ${data.minSubscriptionAmount}`);
+
+  const txMinRedemption = await proxy2.setMinRedemptionAmount(
+    data.minRedemptionAmount,
+  );
+  await txMinRedemption.wait();
+  console.log(`最小赎回金额已设置: ${data.minRedemptionAmount}`);
+
+  const actualMinSubscription = await proxy2.MIN_SUBSCRIPTION_USD_AMOUNT();
+  const actualMinRedemption = await proxy2.MIN_REDEMPTION_CASH_AMOUNT();
+  if (actualMinSubscription !== BigInt(data.minSubscriptionAmount)) {
+    throw new Error(
+      `最小申购金额核验失败: expected ${data.minSubscriptionAmount}, got ${actualMinSubscription}`,
+    );
+  }
+  if (actualMinRedemption !== BigInt(data.minRedemptionAmount)) {
+    throw new Error(
+      `最小赎回金额核验失败: expected ${data.minRedemptionAmount}, got ${actualMinRedemption}`,
+    );
+  }
+  console.log("最小申购和最小赎回金额读回核验通过");
 
   const tx1 = await proxy2.setAssetRecipient(data.assetRecipient);
   await tx1.wait();

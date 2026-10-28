@@ -108,6 +108,17 @@ module.exports = {
       gasPrice: "auto",
       timeout: 2000000,
     },
+    soneium: {
+      url:
+        process.env.SONEIUM_MAINNET_RPC_URL ||
+        (process.env.ALCHEMY_SONEIUM_MAINNET_API_KEY
+          ? `https://soneium-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_SONEIUM_MAINNET_API_KEY}`
+          : "https://soneium-mainnet.rpc.sentio.xyz"),
+      accounts: [process.env.PRIVATE_KEY_2],
+      chainId: 1868,
+      gasPrice: "auto",
+      timeout: 2000000,
+    },
     arcTestnet: {
       url: "https://rpc.testnet.arc.io",
       accounts: [process.env.PRIVATE_KEY_2],
