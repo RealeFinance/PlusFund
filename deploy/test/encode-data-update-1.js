@@ -2,7 +2,7 @@ const { ethers, upgrades } = require("hardhat");
 
 async function main() {
   // ===== 你要改的参数 =====
-  const proxyAddress = "0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D";
+  const proxyAddress = "0x85f51213A6c3F2566aF519D296BB75AD4EC6d234";
   const contractName = "PlusFund";
 
   const hre = require("hardhat");
@@ -15,17 +15,20 @@ async function main() {
   // ===== 1) 获取新实现合约工厂 =====
   const NewImplFactory = await ethers.getContractFactory(contractName);
 
-  // ===== 2) 校验升级安全性 =====
-  await upgrades.validateUpgrade(proxyAddress, NewImplFactory, {
+  // The stored SubscribeData/RedemptionData fields were renamed from
+  // `stokenAmount` to `plusfundAmount`; type and position are unchanged.
+  const upgradeOptions = {
     kind: "uups",
-  });
+    unsafeAllowRenames: true,
+  };
+
+  // ===== 2) 校验升级安全性 =====
+  await upgrades.validateUpgrade(proxyAddress, NewImplFactory, upgradeOptions);
   // ===== 3) 仅部署新的 implementation，不执行升级 =====
   const newImplementationAddress = await upgrades.prepareUpgrade(
     proxyAddress,
     NewImplFactory,
-    {
-      kind: "uups",
-    },
+    upgradeOptions,
   );
   console.log("New implementation deployed:", newImplementationAddress);
 }

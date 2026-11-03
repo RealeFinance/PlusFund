@@ -2,9 +2,9 @@ const { ethers, upgrades } = require("hardhat");
 
 async function main() {
   // ===== 你要改的参数 =====
-  const proxyAddress = "0x238Bd29Bc460F6cB56f80f99B2B39Ff2c183Ee4D";
-  const timelockAddress = "0xbfc85c81133D74519cc09Bf558D51D9628850E67";
-  const newImplementationAddress = "0xB52DED00A3E73AfBa495d31Bb6f38C6a5DD43B31";
+  const proxyAddress = "0x85f51213A6c3F2566aF519D296BB75AD4EC6d234";
+  const timelockAddress = "0x9b61Cc9DcAd897Dc6d1750DF5c3db00F9eC68379";
+  const newImplementationAddress = "0x015D163e73D59eA8eBA4d34DdabB363C4D73C6e1";
   // 如果升级后要顺便执行 reinitializer，就打开下面两行
   const callInitializer = false;
   const initializerArgs = []; // 例如 [123, "abc"]

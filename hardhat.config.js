@@ -162,7 +162,7 @@ module.exports = {
       timeout: 2000000,
     },
     PharosPrivateMainnet: {
-      url: `https://api.zan.top/node/v1/pharos/mainnet/${process.env.ZAN_PHAROS_MAINNET_API_KEY || ""}`,
+      url: `https://pharos.drpc.org`,
       accounts: [process.env.PRIVATE_KEY_2],
       chainId: 1672,
       gasPrice: "auto",
