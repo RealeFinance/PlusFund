@@ -88,6 +88,12 @@ docs/                               # Product docs and categorized technical doc
 deploy-address.md                   # Unified deployment address registry
 ```
 
+## Safe 多签调用数据生成器
+
+打开 [`tools/multisig-calldata/index.html`](./tools/multisig-calldata/index.html) 即可在本地浏览器使用，无需启动服务。页面内置当前 PlusFund ABI 和权限路由，也可载入其他合约 ABI；填写代理地址、选择方法并填入参数后，可生成可复制的 Safe `to / value / data` JSON。
+
+PlusFund 的 `DEFAULT_ADMIN_ROLE` 方法（包括角色授权和 UUPS 升级）默认生成 Timelock 排期交易及延迟后的执行交易；其他已知角色方法默认由多签直接调用。各部署的角色持有人可能不同，提交前请按目标链上的实际权限检查并必要时手动覆盖调用路径。ABI 本身不包含权限信息，自定义 ABI 的方法需人工选择路径。
+
 ## Requirements
 
 - Node.js 18 or newer

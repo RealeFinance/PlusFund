@@ -48,7 +48,7 @@ async function main() {
 
   const grantRoleData = plusFundInterface.encodeFunctionData(
     "grantRole",
-    [ethers.ZeroHash, proxyAddress], // 新的管理员角色
+    [ethers.ZeroHash, "0x26C45A34dc80cc7BcfC153e27688fB1bb8213C30"], // 新的管理员角色
   );
 
   const revokeRoleData = plusFundInterface.encodeFunctionData(
@@ -65,16 +65,16 @@ async function main() {
   const scheduleData = timelock.interface.encodeFunctionData("schedule", [
     proxyAddress, // target
     0, // value（不带 ETH）
-    revokeRoleData, // data → 实际要调用的方法
+    grantRoleData, // data → 实际要调用的方法
     ethers.ZeroHash, // predecessor（无前置操作）
     ethers.ZeroHash, // salt（随机数，避免重复）
-    120,
+    172800,
   ]);
 
   const executeData = timelock.interface.encodeFunctionData("execute", [
     proxyAddress, // target
     0, // value（不带 ETH）
-    revokeRoleData, // data → 实际要调用的方法
+    grantRoleData, // data → 实际要调用的方法
     ethers.ZeroHash, // predecessor（无前置操作）
     ethers.ZeroHash, // salt（随机数，避免重复）
   ]);
@@ -87,7 +87,7 @@ async function main() {
   console.log("Execute Data:        ", executeData);
   console.log("");
   console.log("Cancel Data:         ", cancelData);
-  console.log("Grant Role Data:     ", revokeRoleData);
+  console.log("Grant Role Data:     ", grantRoleData);
 }
 
 main().catch((error) => {
